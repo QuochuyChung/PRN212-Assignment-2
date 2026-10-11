@@ -1,0 +1,28 @@
+@page
+@model asg2.Web.Pages.Admin.Subjects.DeleteModel
+@{
+    ViewData["Title"] = "Xóa môn học";
+}
+
+<h1 class="h3 mb-3">Xóa môn học</h1>
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <p>Bạn có chắc muốn xóa môn học sau? Thao tác này không thể hoàn tác.</p>
+        <dl class="row">
+            <dt class="col-sm-4">Mã môn</dt>
+            <dd class="col-sm-8">@Model.Subject!.Code</dd>
+            <dt class="col-sm-4">Tên môn học</dt>
+            <dd class="col-sm-8">@Model.Subject.Name</dd>
+        </dl>
+        <p class="text-muted small">Nếu môn học đã có phiên thi, hệ thống sẽ không cho xóa.</p>
+
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Xóa</button>
+            <a class="btn btn-link" asp-page="Index">Hủy</a>
+        </form>
+    </div>
+</div>

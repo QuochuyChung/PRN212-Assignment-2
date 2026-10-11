@@ -1,0 +1,16 @@
+@* Các ô nhập dùng chung cho Create và Edit. Model của trang phải có thuộc tính Input kiểu RoomInput. *@
+@model asg2.Web.Pages.Admin.Rooms.RoomInput
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" autocomplete="off" placeholder="VD: A101" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Building" class="form-label"></label>
+    <input asp-for="Building" class="form-control" autocomplete="off" placeholder="VD: Tòa A" />
+    <span asp-validation-for="Building" class="text-danger small"></span>
+</div>
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>

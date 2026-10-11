@@ -1,11 +1,20 @@
 using asg2.BLL;
+using asg2.BLL.Realtime;
+using asg2.Web.Hubs;
 using asg2.Web.Infrastructure;
+using asg2.Web.Realtime;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Tầng Web chỉ biết BLL: AddBusinessLayer đăng ký toàn bộ phần còn lại (kể cả truy cập dữ liệu).
 builder.Services.AddBusinessLayer(builder.Configuration);
 builder.Services.AddAppAuthentication();
+
+builder.Services.AddSignalR();
+
+// Thay NullRealtimeNotifier (BLL đã TryAdd) bằng bản đẩy sự kiện SignalR thật.
+builder.Services.Replace(ServiceDescriptor.Singleton<IRealtimeNotifier, SignalRNotifier>());
 
 builder.Services.AddRazorPages(options =>
 {
@@ -37,5 +46,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapRazorPages();
+app.MapHub<ExamHub>(ExamHub.Path);
 
 app.Run();
