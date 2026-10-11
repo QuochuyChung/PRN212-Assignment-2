@@ -189,17 +189,17 @@ Mỗi người làm theo cùng một thứ tự **A → F** cho lát của mình
 - [x] A–B: `Account` + config + `IAccountRepository`; mật khẩu băm bằng `PasswordHasher`. ✅
 - [x] C: `AuthService.LoginAsync` (username/mật khẩu, tài khoản `IsActive`); `AccountService` CRUD sinh viên (username unique, định dạng, không xóa tài khoản đang có slot, khóa thay vì xóa). ✅
 - [x] D: Login/Logout, cookie auth + role (`Admin` cho `Pages/Admin`, `Student` cho `Pages/Student`), `Admin/Accounts` (Index, Create, Edit, Delete/khóa), `_Layout` menu theo role. ✅
-- [x] E: bắn `Account*` khi CRUD; khi khóa/xóa tài khoản đang online → `ForceLogout`; JS: bảng tài khoản tự cập nhật, nhận `ForceLogout` thì về trang Login. ✅ phía server và JS xong, **chờ P2** thay stub `exam-hub.js` bằng kết nối SignalR thật thì event mới tới trình duyệt (khóa/xóa tài khoản vẫn có hiệu lực ở request kế tiếp)
+- [x] E: bắn `Account*` khi CRUD; khi khóa/xóa tài khoản đang online → `ForceLogout`; JS: bảng tài khoản tự cập nhật, nhận `ForceLogout` thì về trang Login. ✅ (P2 đã thay `exam-hub.js` bằng kết nối SignalR thật nên event tới trình duyệt bình thường)
 - [x] F: seeder tài khoản mẫu (1 admin, ~10 sinh viên); test các case đăng nhập/phân quyền; README phần setup + tài khoản mẫu. ✅ (đã chạy 20 ca HTTP end-to-end + kiểm JS; script test chưa đưa vào repo); mật khẩu mẫu ở README
 **Xong khi:** `dotnet run` ra trang Login, đăng nhập đúng role, sinh viên vào `Pages/Admin` bị chặn, admin khóa một sinh viên đang online thì sinh viên đó bị đăng xuất ngay.
 
 ### P2 — Môn học, phòng thi, lõi SignalR, dashboard
-- [ ] **Lõi SignalR (làm sớm, Sprint 1):** `ExamHub`, `IRealtimeNotifier` + `SignalRNotifier`, `HubEvents` (đủ danh sách mục 5.3), `exam-hub.js`, toast dùng chung (phối hợp P1 ở `_Layout`).
-- [ ] A–B: `Subject`, `Room` + config + repo.
-- [ ] C: `SubjectService`, `RoomService` (mã môn/tên phòng unique, chặn xóa khi đang dùng, `GetAllAsync()` cho dropdown); `DashboardService.GetStatsAsync()` trả `DashboardStatsDto` (số phiên, sinh viên, phòng, câu hỏi, đếm qua repo; nếu cần repo của chủ khác thì chỉ **đọc**).
-- [ ] D: `Admin/Subjects`, `Admin/Rooms` (Index, Create, Edit, Delete); `Admin/Dashboard` (PageModel chỉ gọi `IDashboardService`, có handler `OnGetStats` trả JSON từ DTO).
-- [ ] E: bắn `Subject*`/`Room*`; dashboard nghe mọi event admin và gọi lại `?handler=Stats` để đổi số **live**.
-- [ ] F: seeder môn và phòng mẫu; test; README phần realtime (sơ đồ luồng PageModel → Service → Notifier → Hub → JS).
+- [x] **Lõi SignalR (làm sớm, Sprint 1):** `ExamHub`, `IRealtimeNotifier` + `SignalRNotifier`, `HubEvents` (đủ danh sách mục 5.3), `exam-hub.js`, toast dùng chung (phối hợp P1 ở `_Layout`). ✅
+- [x] A–B: `Subject`, `Room` + config + repo. ✅
+- [x] C: `SubjectService`, `RoomService` (mã môn/tên phòng unique, chặn xóa khi đang dùng, `GetAllAsync()` cho dropdown); `DashboardService.GetStatsAsync()` trả `DashboardStatsDto` (số phiên, sinh viên, phòng, câu hỏi, đếm qua repo; nếu cần repo của chủ khác thì chỉ **đọc**). ✅ (đếm TẤT CẢ tài khoản sinh viên; `TotalSessions`/`TotalQuestions` = 0 chờ P3/P5)
+- [x] D: `Admin/Subjects`, `Admin/Rooms` (Index, Create, Edit, Delete); `Admin/Dashboard` (PageModel chỉ gọi `IDashboardService`, có handler `OnGetStats` trả JSON từ DTO). ✅
+- [x] E: bắn `Subject*`/`Room*`; dashboard nghe mọi event admin và gọi lại `?handler=Stats` để đổi số **live**. ✅
+- [x] F: seeder môn và phòng mẫu; test; README phần realtime (sơ đồ luồng PageModel → Service → Notifier → Hub → JS). ✅ (README mục 7; seeder `SubjectRoomSeeder`)
 **Xong khi:** mở Dashboard ở một cửa sổ, cửa sổ khác thêm/xóa môn hoặc phòng thì danh sách và số liệu đổi ngay; event bắn đúng payload mục 5.3.
 
 ### P3 — Phiên thi + lịch thi chung của sinh viên
