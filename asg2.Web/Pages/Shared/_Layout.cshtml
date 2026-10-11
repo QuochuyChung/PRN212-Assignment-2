@@ -62,7 +62,9 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @* exam-hub.js tạo ExamEvents (bus sự kiện realtime dùng chung). P2 thay bản stub bằng kết nối SignalR thật. *@
+    @* SignalR client (@microsoft/signalr 8, copy từ NuGet vào wwwroot/lib/signalr) phải tải trước exam-hub.js. *@
+    <script src="~/lib/signalr/dist/browser/signalr.min.js" asp-append-version="true"></script>
+    @* exam-hub.js tạo ExamEvents (bus sự kiện realtime dùng chung) và MỘT connection tới /hubs/exam. *@
     <script src="~/js/exam-hub.js" asp-append-version="true"></script>
     @if (User.Identity?.IsAuthenticated == true)
     {
