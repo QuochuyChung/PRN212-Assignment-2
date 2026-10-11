@@ -59,3 +59,7 @@
 </div>
 
 <p id="rooms-empty" class="text-muted" @(Model.Rooms.Count > 0 ? "hidden" : "")>Chưa có phòng thi nào.</p>
+
+@section Scripts {
+    <script src="~/js/room-list.js" asp-append-version="true"></script>
+}

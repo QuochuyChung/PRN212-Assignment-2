@@ -48,3 +48,7 @@
 </div>
 
 <p id="subjects-empty" class="text-muted" @(Model.Subjects.Count > 0 ? "hidden" : "")>Chưa có môn học nào.</p>
+
+@section Scripts {
+    <script src="~/js/subject-list.js" asp-append-version="true"></script>
+}
