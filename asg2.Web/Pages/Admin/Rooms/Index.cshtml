@@ -1,0 +1,61 @@
+@page
+@model asg2.Web.Pages.Admin.Rooms.IndexModel
+@{
+    ViewData["Title"] = "Phòng thi";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0">Phòng thi</h1>
+    <a class="btn btn-primary" asp-page="Create">+ Thêm phòng</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-5 col-lg-4">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="Tìm theo tên phòng hoặc tòa nhà" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Tìm</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Q))
+        {
+            <a class="btn btn-link" asp-page="Index">Xóa lọc</a>
+        }
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Tên phòng</th>
+                <th>Tòa nhà</th>
+                <th>Trạng thái</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody id="rooms-body" data-filtered="@(!string.IsNullOrWhiteSpace(Model.Q) ? "true" : "false")">
+            @foreach (var room in Model.Rooms)
+            {
+                <tr data-id="@room.Id">
+                    <td class="col-name">@room.Name</td>
+                    <td class="col-building">@(room.Building ?? "—")</td>
+                    <td class="col-status">
+                        @if (room.IsActive)
+                        {
+                            <span class="badge text-bg-success">Hoạt động</span>
+                        }
+                        else
+                        {
+                            <span class="badge text-bg-secondary">Ngừng sử dụng</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@room.Id">Sửa</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@room.Id">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p id="rooms-empty" class="text-muted" @(Model.Rooms.Count > 0 ? "hidden" : "")>Chưa có phòng thi nào.</p>
