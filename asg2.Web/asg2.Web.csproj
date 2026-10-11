@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- RÀNG BUỘC KIẾN TRÚC: tầng Web CHỈ được tham chiếu BLL. Tuyệt đối không thêm reference tới DAL. -->
+    <ProjectReference Include="..\asg2.BLL\asg2.BLL.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Chỉ để chạy `dotnet ef` (Web là startup project). Không dùng EF Core trong code của Web. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

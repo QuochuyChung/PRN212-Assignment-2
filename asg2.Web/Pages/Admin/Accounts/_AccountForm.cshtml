@@ -1,0 +1,25 @@
+@* Các ô nhập dùng chung cho Create và Edit. Model của trang phải có thuộc tính Input kiểu AccountInput. *@
+@model asg2.Web.Pages.Admin.Accounts.AccountInput
+<div class="mb-3">
+    <label asp-for="Username" class="form-label"></label>
+    <input asp-for="Username" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Username" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="FullName" class="form-label"></label>
+    <input asp-for="FullName" class="form-control" autocomplete="off" />
+    <span asp-validation-for="FullName" class="text-danger small"></span>
+</div>
+<div class="mb-3">
+    <label asp-for="Password" class="form-label"></label>
+    <input asp-for="Password" class="form-control" autocomplete="new-password" />
+    <span asp-validation-for="Password" class="text-danger small"></span>
+    @if (ViewData["PasswordHint"] is string hint)
+    {
+        <div class="form-text">@hint</div>
+    }
+</div>
+<div class="form-check mb-3">
+    <input asp-for="IsActive" class="form-check-input" />
+    <label asp-for="IsActive" class="form-check-label"></label>
+</div>

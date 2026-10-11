@@ -1,0 +1,12 @@
+asg2:
++ giống asg1 nhưng làm luồng khác, kh liên quan tới cái asg1
++ xài mô hình razor page
++ tập trung vào pages, code behind kế thừa PageModel viết giống controller tinh gọn của mô hình MVC xử lí UI
+Yêu cầu asg2:
++ razor pages models
++ 3 layer
++ SignalR, thực thi real time, cho crud là được thêm xóa sửa, ở admin xóa hay thêm 1 sản phẩm là client phải thấy liền 
++ chọn chức năng khác asg1
+
+lab bonus 03
++ thực thi giống với lab 02 nhưng mà sử dụng dùng signalR, không dùng web socket, tạo ứng dụng chat client chạy trên nền tảng web luôn chứ không xài wpf, mvc hay razor page đều được, các chức năng yêu cầu như bài lab số 2 

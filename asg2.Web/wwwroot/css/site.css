@@ -1,0 +1,41 @@
+:root {
+    --app-primary: #1f4e9c;
+    --app-primary-dark: #163a75;
+}
+
+html {
+    font-size: 15px;
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    background-color: #f5f7fa;
+}
+
+.app-navbar {
+    background-color: var(--app-primary);
+}
+
+.btn-primary {
+    --bs-btn-bg: var(--app-primary);
+    --bs-btn-border-color: var(--app-primary);
+    --bs-btn-hover-bg: var(--app-primary-dark);
+    --bs-btn-hover-border-color: var(--app-primary-dark);
+    --bs-btn-active-bg: var(--app-primary-dark);
+    --bs-btn-active-border-color: var(--app-primary-dark);
+}
+
+.login-card {
+    margin-top: 6vh;
+}
+
+/* Dòng vừa được cập nhật realtime: nháy nền vàng nhạt rồi tắt dần. */
+@keyframes row-flash {
+    from { background-color: #fff3cd; }
+    to { background-color: transparent; }
+}
+
+.row-flash > td {
+    animation: row-flash 2.5s ease-out;
+}

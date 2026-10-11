@@ -1,0 +1,23 @@
+@page
+@model asg2.Web.Pages.Admin.Accounts.CreateModel
+@{
+    ViewData["Title"] = "Thêm tài khoản";
+    ViewData["PasswordHint"] = "Tối thiểu 6 ký tự.";
+}
+
+<h1 class="h3 mb-3">Thêm tài khoản sinh viên</h1>
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-2"></div>
+            <partial name="_AccountForm" for="Input" view-data="ViewData" />
+            <button type="submit" class="btn btn-primary">Tạo tài khoản</button>
+            <a class="btn btn-link" asp-page="Index">Hủy</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

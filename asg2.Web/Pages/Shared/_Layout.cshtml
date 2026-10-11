@@ -1,0 +1,73 @@
+@using asg2.BLL.Common
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Lịch thi vấn đáp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+            <div class="container-fluid px-4">
+                <a class="navbar-brand fw-semibold" asp-page="/Index">Lịch thi vấn đáp</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="mainNav">
+                    <ul class="navbar-nav me-auto">
+                        @if (User.IsInRole(AppRoles.Admin))
+                        {
+                            <partial name="_AdminNav" />
+                        }
+                        else if (User.IsInRole(AppRoles.Student))
+                        {
+                            <partial name="_StudentNav" />
+                        }
+                    </ul>
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <span class="navbar-text me-3">
+                            @User.GetFullName()
+                            <span class="badge text-bg-light ms-1">@User.GetRole()</span>
+                        </span>
+                        <form method="post" asp-page="/Account/Logout" class="d-flex">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Đăng xuất</button>
+                        </form>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container-fluid px-4 py-4" role="main">
+        @RenderBody()
+    </main>
+
+    @* Thông báo một lần (TempData) được site.js đọc rồi hiện bằng toast. *@
+    @if (TempData["Success"] is string successMessage)
+    {
+        <div id="flash" hidden data-type="success" data-message="@successMessage"></div>
+    }
+    else if (TempData["Error"] is string errorMessage)
+    {
+        <div id="flash" hidden data-type="danger" data-message="@errorMessage"></div>
+    }
+
+    <div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @* exam-hub.js tạo ExamEvents (bus sự kiện realtime dùng chung). P2 thay bản stub bằng kết nối SignalR thật. *@
+    <script src="~/js/exam-hub.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script src="~/js/force-logout.js" asp-append-version="true"></script>
+    }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
