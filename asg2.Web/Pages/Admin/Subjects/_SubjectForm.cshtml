@@ -1,0 +1,13 @@
+@* Các ô nhập dùng chung cho Create và Edit. Model của trang phải có thuộc tính Input kiểu SubjectInput. *@
+@model asg2.Web.Pages.Admin.Subjects.SubjectInput
+<div class="mb-3">
+    <label asp-for="Code" class="form-label"></label>
+    <input asp-for="Code" class="form-control" autocomplete="off" placeholder="VD: PRN222" />
+    <span asp-validation-for="Code" class="text-danger small"></span>
+    <div class="form-text">2–20 ký tự, chỉ gồm chữ, số và dấu gạch ngang.</div>
+</div>
+<div class="mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Name" class="text-danger small"></span>
+</div>

@@ -1,0 +1,50 @@
+@page
+@model asg2.Web.Pages.Admin.Subjects.IndexModel
+@{
+    ViewData["Title"] = "Môn học";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <h1 class="h3 mb-0">Môn học</h1>
+    <a class="btn btn-primary" asp-page="Create">+ Thêm môn học</a>
+</div>
+
+<form method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-5 col-lg-4">
+        <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="Tìm theo mã hoặc tên môn" />
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Tìm</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Q))
+        {
+            <a class="btn btn-link" asp-page="Index">Xóa lọc</a>
+        }
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Mã môn</th>
+                <th>Tên môn học</th>
+                <th class="text-end">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody id="subjects-body" data-filtered="@(!string.IsNullOrWhiteSpace(Model.Q) ? "true" : "false")">
+            @foreach (var subject in Model.Subjects)
+            {
+                <tr data-id="@subject.Id">
+                    <td class="col-code">@subject.Code</td>
+                    <td class="col-name">@subject.Name</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" asp-page="Edit" asp-route-id="@subject.Id">Sửa</a>
+                        <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@subject.Id">Xóa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p id="subjects-empty" class="text-muted" @(Model.Subjects.Count > 0 ? "hidden" : "")>Chưa có môn học nào.</p>
