@@ -1,0 +1,127 @@
+@page
+@model asg2.Web.Pages.Admin.Sessions.IndexModel
+@{
+    ViewData["Title"] = "Quản lý phiên thi";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-1 fw-bold">Quản lý phiên thi</h1>
+        <div class="text-muted small">Tổ chức phiên thi vấn đáp, phân bổ phòng thi và cấu hình ngân hàng câu hỏi</div>
+    </div>
+    <a class="btn btn-primary shadow-sm" asp-page="Create">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+        </svg>
+        Tạo phiên thi mới
+    </a>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-4">
+                <input type="search" name="q" value="@Model.Q" class="form-control" placeholder="Tìm theo tiêu đề, môn, phòng..." />
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="subjectId" class="form-select">
+                    <option value="">-- Tất cả môn học --</option>
+                    @foreach (var sub in Model.Subjects)
+                    {
+                        <option value="@sub.Id" selected="@(Model.SubjectId == sub.Id)">@sub.Code - @sub.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">-- Tất cả trạng thái --</option>
+                    <option value="Scheduled" selected="@(Model.Status == "Scheduled")">Sắp tới</option>
+                    <option value="Completed" selected="@(Model.Status == "Completed")">Hoàn thành</option>
+                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Đã hủy</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary flex-grow-1">Lọc</button>
+                @if (!string.IsNullOrWhiteSpace(Model.Q) || Model.SubjectId.HasValue || !string.IsNullOrWhiteSpace(Model.Status))
+                {
+                    <a class="btn btn-outline-secondary" asp-page="Index" title="Xóa bộ lọc">&times;</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Tiêu đề phiên thi</th>
+                    <th>Môn học</th>
+                    <th>Phòng</th>
+                    <th>Thời gian</th>
+                    <th>Slot & Câu hỏi</th>
+                    <th>Trạng thái</th>
+                    <th>Thí sinh</th>
+                    <th class="text-end pe-3">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="sessions-body" data-filtered="@((!string.IsNullOrWhiteSpace(Model.Q) || Model.SubjectId.HasValue || !string.IsNullOrWhiteSpace(Model.Status)) ? "true" : "false")">
+                @foreach (var s in Model.Sessions)
+                {
+                    <tr data-id="@s.Id">
+                        <td class="col-title ps-3 fw-bold">
+                            <a asp-page="Details" asp-route-id="@s.Id" class="text-decoration-none text-dark hover-primary">@s.Title</a>
+                        </td>
+                        <td class="col-subject">
+                            <span class="badge badge-soft-primary">@s.SubjectCode</span>
+                            <div class="small text-muted">@s.SubjectName</div>
+                        </td>
+                        <td class="col-room">
+                            <span class="badge badge-soft-info">@s.RoomName</span>
+                        </td>
+                        <td class="col-time small">
+                            <div class="fw-semibold">@s.StartTime.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                            <div class="text-muted">@s.StartTime.ToLocalTime().ToString("HH:mm") - @s.EndTime.ToLocalTime().ToString("HH:mm")</div>
+                        </td>
+                        <td class="col-slot small">
+                            <div>@s.SlotMinutes phút/slot</div>
+                            <div class="text-muted">@s.MainQuestionCount câu chính (+@s.MaxFollowUpCount phụ)</div>
+                        </td>
+                        <td class="col-status">
+                            @if (s.Status == "Scheduled")
+                            {
+                                <span class="badge badge-soft-success">Sắp tới</span>
+                            }
+                            else if (s.Status == "Cancelled")
+                            {
+                                <span class="badge badge-soft-danger">Đã hủy</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-soft-secondary">Hoàn thành</span>
+                            }
+                        </td>
+                        <td class="col-capacity">
+                            <span class="badge @(s.AssignedCount >= s.Capacity ? "badge-soft-warning" : "badge-soft-secondary")">
+                                @s.AssignedCount / @s.Capacity thí sinh
+                            </span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <a class="btn btn-sm btn-outline-secondary me-1" asp-page="Details" asp-route-id="@s.Id">Chi tiết</a>
+                            <a class="btn btn-sm btn-outline-primary me-1" asp-page="Edit" asp-route-id="@s.Id">Sửa</a>
+                            <a class="btn btn-sm btn-outline-danger" asp-page="Delete" asp-route-id="@s.Id">Xóa</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div id="sessions-empty" class="p-4 text-center text-muted" @(Model.Sessions.Count > 0 ? "hidden" : "")>
+        Chưa có phiên thi nào phù hợp với điều kiện tìm kiếm.
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/session-list.js" asp-append-version="true"></script>
+}

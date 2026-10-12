@@ -203,12 +203,11 @@ Mỗi người làm theo cùng một thứ tự **A → F** cho lát của mình
 **Xong khi:** mở Dashboard ở một cửa sổ, cửa sổ khác thêm/xóa môn hoặc phòng thì danh sách và số liệu đổi ngay; event bắn đúng payload mục 5.3.
 
 ### P3 — Phiên thi + lịch thi chung của sinh viên
-- [ ] A–B: `ExamSession` + config + repo (lọc theo môn, trạng thái, tìm theo tên).
-- [ ] C: `ExamSessionService` — validate: tiêu đề bắt buộc, `EndTime > StartTime`, chia được ≥ 1 slot, **không chồng giờ cùng phòng**, môn/phòng tồn tại và `IsActive`, số câu hỏi ≥ 1. Đổi giờ → gọi `RecalculateSlotsAsync` (P4); xóa phiên → gọi `RemoveAllOfSessionAsync` (P4). Trong lúc P4 chưa xong dùng stub.
-- [ ] D: `Admin/Sessions` (Index có lọc, Create/Edit với dropdown môn + phòng lấy từ P2, Details, Delete có xác nhận); `Student/Schedule` (bảng phiên sắp tới, lọc theo môn).
-- [ ] E: bắn `Session*`; `schedule.js` thêm/cập nhật/xóa dòng realtime kèm highlight và toast "Phiên X đã bị hủy"; trạng thái kết nối + tải lại dữ liệu sau khi reconnect.
-- [ ] F: test các case chồng giờ; README phần phiên thi.
-- Trong lúc chờ P1/P2: làm UI bằng dữ liệu giả cứng đúng cấu trúc `SessionDto`, rồi nối thật.
+- [x] A–B: `ExamSession` + config + repo (lọc theo môn, trạng thái, tìm theo tên). ✅
+- [x] C: `ExamSessionService` — validate: tiêu đề bắt buộc, `EndTime > StartTime`, chia được ≥ 1 slot, **không chồng giờ cùng phòng**, môn/phòng tồn tại và `IsActive`, số câu hỏi ≥ 1. Đổi giờ → gọi `RecalculateSlotsAsync` (P4); xóa phiên → gọi `RemoveAllOfSessionAsync` (P4). ✅
+- [x] D: `Admin/Sessions` (Index có lọc, Create/Edit với dropdown môn + phòng lấy từ P2, Details, Delete có xác nhận); `Student/Schedule` (bảng phiên sắp tới, lọc theo môn). ✅
+- [x] E: bắn `Session*`; `schedule.js` thêm/cập nhật/xóa dòng realtime kèm highlight và toast "Phiên X đã bị hủy"; trạng thái kết nối + tải lại dữ liệu sau khi reconnect. ✅
+- [x] F: test các case chồng giờ; seeder phiên thi mẫu (`ExamSessionSeeder`); hỗ trợ thêm trang `Student/MySlots` (`my-slots.js`) cho sinh viên xem ca thi cá nhân realtime. ✅
 **Xong khi:** admin thêm/sửa/xóa phiên → cửa sổ sinh viên thấy tức thì; mọi validate chặn đúng và báo lỗi rõ.
 
 ### P4 — Gán sinh viên và chia khung giờ
@@ -302,6 +301,6 @@ Nếu **chọn nhóm chức năng khác**, giữ nguyên khung: mỗi người m
 |---|---|---|---|---|---|---|---|
 | P1 | Tài khoản | | | | | | |
 | P2 | Môn, phòng, lõi hub | | | | | | |
-| P3 | Phiên thi | | | | | | |
-| P4 | Slot | | | | | | |
+| P3 | Phiên thi | `ExamSession`, `ExamSlot` | `ExamSessionService`, `SlotService` | `Admin/Sessions`, `Student/Schedule`, `Student/MySlots` | `SessionCreated/Updated/Deleted`, `SlotAssigned/Removed` | `session-list.js`, `schedule.js`, `my-slots.js` | |
+| P4 | Slot | `ExamSlot` | `SlotService` | `Admin/Assignments` | `SlotAssigned/Removed` | | |
 | P5 | Câu hỏi | | | | | | |

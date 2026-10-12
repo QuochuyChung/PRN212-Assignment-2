@@ -1,0 +1,49 @@
+@page "{id:int}"
+@model asg2.Web.Pages.Admin.Sessions.DeleteModel
+@{
+    ViewData["Title"] = "Xóa phiên thi";
+    var s = Model.Session!;
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-6">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="card-title mb-0">Xác nhận xóa phiên thi</h5>
+            </div>
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                <p class="text-danger fw-semibold">Bạn có chắc chắn muốn xóa phiên thi này không? Mọi lịch ca thi đã phân cho sinh viên thuộc phiên này cũng sẽ bị hủy.</p>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-4">Tiêu đề</dt>
+                    <dd class="col-sm-8 fw-bold">@s.Title</dd>
+
+                    <dt class="col-sm-4">Môn học</dt>
+                    <dd class="col-sm-8">@s.SubjectCode - @s.SubjectName</dd>
+
+                    <dt class="col-sm-4">Phòng thi</dt>
+                    <dd class="col-sm-8">@s.RoomName</dd>
+
+                    <dt class="col-sm-4">Thời gian</dt>
+                    <dd class="col-sm-8">
+                        @s.StartTime.ToLocalTime().ToString("dd/MM/yyyy HH:mm") - @s.EndTime.ToLocalTime().ToString("HH:mm")
+                    </dd>
+
+                    <dt class="col-sm-4">Trạng thái</dt>
+                    <dd class="col-sm-8">
+                        <span class="badge @(s.Status == "Scheduled" ? "bg-success" : s.Status == "Cancelled" ? "bg-danger" : "bg-secondary")">
+                            @s.Status
+                        </span>
+                    </dd>
+                </dl>
+
+                <form method="post" class="d-flex justify-content-end gap-2">
+                    <a asp-page="Index" class="btn btn-secondary">Quay lại</a>
+                    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

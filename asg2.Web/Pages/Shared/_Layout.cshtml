@@ -4,7 +4,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Lịch thi vấn đáp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -30,13 +32,26 @@
                     </ul>
                     @if (User.Identity?.IsAuthenticated == true)
                     {
-                        <span class="navbar-text me-3">
-                            @User.GetFullName()
-                            <span class="badge text-bg-light ms-1">@User.GetRole()</span>
-                        </span>
-                        <form method="post" asp-page="/Account/Logout" class="d-flex">
-                            <button type="submit" class="btn btn-outline-light btn-sm">Đăng xuất</button>
-                        </form>
+                        <div class="navbar-user-box d-flex flex-wrap align-items-center justify-content-between justify-content-lg-end gap-3 ms-lg-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="avatar-circle" style="background: rgba(255,255,255,0.15); color: #ffffff; border: 1px solid rgba(255,255,255,0.25); width: 34px; height: 34px; font-size: 0.85rem;">
+                                    @(string.IsNullOrWhiteSpace(User.GetFullName()) ? "U" : User.GetFullName().Trim().Substring(0, 1).ToUpper())
+                                </div>
+                                <div class="d-flex flex-column lh-sm">
+                                    <span class="text-white fw-semibold small">@User.GetFullName()</span>
+                                    <span class="badge badge-soft-info py-0 px-2 mt-1" style="width: fit-content; font-size: 0.7rem;">@User.GetRole()</span>
+                                </div>
+                            </div>
+                            <form method="post" asp-page="/Account/Logout" class="d-inline m-0">
+                                <button type="submit" class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-1 py-1 px-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                        <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                    </svg>
+                                    <span>Đăng xuất</span>
+                                </button>
+                            </form>
+                        </div>
                     }
                 </div>
             </div>

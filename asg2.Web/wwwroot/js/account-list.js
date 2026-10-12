@@ -19,7 +19,7 @@
 
     function statusBadge(isActive) {
         var badge = document.createElement('span');
-        badge.className = 'badge ' + (isActive ? 'text-bg-success' : 'text-bg-secondary');
+        badge.className = 'badge ' + (isActive ? 'bg-success' : 'bg-secondary');
         badge.textContent = isActive ? 'Hoạt động' : 'Đã khóa';
         return badge;
     }
