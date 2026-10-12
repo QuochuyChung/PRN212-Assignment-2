@@ -1,0 +1,180 @@
+@page
+@model asg2.Web.Pages.Admin.Assignments.IndexModel
+@{
+    ViewData["Title"] = "Gán sinh viên vào phiên thi";
+    var session = Model.SelectedSession;
+    var remainingCapacity = session == null ? 0 : Math.Max(0, session.Capacity - Model.Slots.Count);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-1 fw-bold">Gán sinh viên vào phiên thi</h1>
+        <div class="text-muted small">Chọn nhiều sinh viên; hệ thống tự cấp khung giờ trống sớm nhất và chặn lịch bị trùng.</div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-lg-9">
+                <label asp-for="SessionId" class="form-label fw-semibold">Phiên thi</label>
+                <select asp-for="SessionId" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Chọn phiên thi sắp tới --</option>
+                    @foreach (var item in Model.Sessions)
+                    {
+                        <option value="@item.Id">
+                            @item.Title — @item.SubjectCode — @item.StartTime.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="SessionId" class="text-danger small"></span>
+            </div>
+            <div class="col-12 col-lg-3">
+                <button type="submit" class="btn btn-outline-primary w-100">Xem danh sách slot</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (session != null)
+{
+    <div id="assignment-page" data-session-id="@session.Id" data-capacity="@session.Capacity">
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card shadow-sm h-100"><div class="card-body">
+                    <div class="text-muted small">Môn học</div>
+                    <div id="assignment-subject" class="fw-bold">@session.SubjectCode — @session.SubjectName</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card shadow-sm h-100"><div class="card-body">
+                    <div class="text-muted small">Phòng thi</div>
+                    <div id="assignment-room" class="fw-bold">@session.RoomName</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card shadow-sm h-100"><div class="card-body">
+                    <div class="text-muted small">Khung giờ phiên</div>
+                    <div id="assignment-time" class="fw-bold">
+                        @session.StartTime.ToLocalTime().ToString("dd/MM/yyyy HH:mm") – @session.EndTime.ToLocalTime().ToString("HH:mm")
+                    </div>
+                    <div id="assignment-slot-minutes" class="small text-muted">@session.SlotMinutes phút / sinh viên</div>
+                </div></div>
+            </div>
+            <div class="col-12 col-md-6 col-xl-3">
+                <div class="card shadow-sm h-100"><div class="card-body">
+                    <div class="text-muted small">Sức chứa</div>
+                    <div class="fw-bold"><span id="assignment-count">@Model.Slots.Count</span> / <span id="assignment-capacity">@session.Capacity</span> sinh viên</div>
+                    <div class="small text-muted">Còn <span id="assignment-remaining">@remainingCapacity</span> chỗ trống</div>
+                </div></div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-xl-5">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h2 class="h5 mb-1 fw-bold">Chọn sinh viên</h2>
+                        <div class="small text-muted">Có thể chọn nhiều sinh viên trong một lần gán.</div>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-page-handler="Assign" id="assign-form">
+                            <input type="hidden" asp-for="SessionId" />
+                            @if (!ViewData.ModelState.IsValid)
+                            {
+                                <div asp-validation-summary="All" class="alert alert-danger" role="alert"></div>
+                            }
+                            <span asp-validation-for="StudentIds" class="text-danger small d-block mb-2"></span>
+
+                            <input id="student-search" type="search" class="form-control mb-3" placeholder="Tìm theo tên hoặc tên đăng nhập..." />
+
+                            <div id="student-list" class="border rounded overflow-auto" style="max-height: 430px;">
+                                @foreach (var student in Model.Students)
+                                {
+                                    var assigned = Model.AssignedStudentIds.Contains(student.Id);
+                                    <label class="student-choice d-flex align-items-center gap-3 px-3 py-2 border-bottom @(assigned ? "bg-light text-muted" : "")"
+                                           data-student-id="@student.Id"
+                                           data-search="@($"{student.Username} {student.FullName}".ToLowerInvariant())">
+                                        <input class="form-check-input mt-0" type="checkbox" name="StudentIds" value="@student.Id" disabled="@assigned" />
+                                        <span class="flex-grow-1">
+                                            <span class="student-name d-block fw-semibold">@student.FullName</span>
+                                            <span class="student-username small text-muted">@student.Username</span>
+                                        </span>
+                                        <span class="assigned-label badge badge-soft-secondary" hidden="@(!assigned)">Đã gán</span>
+                                    </label>
+                                }
+                            </div>
+
+                            <div id="student-empty" class="text-center text-muted small py-3" hidden>Không tìm thấy sinh viên phù hợp.</div>
+
+                            <button id="assign-button" type="submit" class="btn btn-primary w-100 mt-3" disabled="@(remainingCapacity == 0)">
+                                Gán sinh viên đã chọn
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-xl-7">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white py-3">
+                        <h2 class="h5 mb-1 fw-bold">Danh sách khung giờ</h2>
+                        <div class="small text-muted">Slot trống được giữ lại và ưu tiên lấp từ thứ tự nhỏ nhất.</div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-3">Slot</th>
+                                    <th>Sinh viên</th>
+                                    <th>Khung giờ</th>
+                                    <th class="text-end pe-3">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="assignment-slots-body">
+                                @foreach (var slot in Model.Slots)
+                                {
+                                    <tr data-slot-id="@slot.Id" data-student-id="@slot.StudentId" data-order-no="@slot.OrderNo">
+                                        <td class="col-order ps-3"><span class="badge badge-soft-primary">#@slot.OrderNo</span></td>
+                                        <td class="col-student">
+                                            <div class="fw-semibold student-fullname">@slot.StudentFullName</div>
+                                            <div class="small text-muted student-username">@slot.StudentUsername</div>
+                                        </td>
+                                        <td class="col-time">
+                                            <span class="badge badge-soft-success">
+                                                @slot.StartTime.ToLocalTime().ToString("HH:mm") – @slot.EndTime.ToLocalTime().ToString("HH:mm")
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3">
+                                            <form method="post" asp-page-handler="Remove" class="d-inline remove-slot-form">
+                                                <input type="hidden" name="sessionId" value="@session.Id" />
+                                                <input type="hidden" name="slotId" value="@slot.Id" />
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Gỡ</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="assignment-slots-empty" class="empty-state" hidden="@(Model.Slots.Count > 0)">
+                        <div class="fw-semibold text-dark mb-1">Phiên thi chưa có sinh viên</div>
+                        <div class="small">Chọn sinh viên ở danh sách bên trái để hệ thống tự chia khung giờ.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="empty-state card shadow-sm">
+        <div class="fw-semibold text-dark mb-1">Chưa chọn phiên thi</div>
+        <div class="small">Hãy chọn một phiên thi sắp tới để gán sinh viên và xem các slot đã được xếp.</div>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/assignment-list.js" asp-append-version="true"></script>
+}
