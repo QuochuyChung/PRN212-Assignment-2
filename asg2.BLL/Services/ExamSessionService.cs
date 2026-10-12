@@ -139,12 +139,17 @@ namespace asg2.BLL.Services
             session.MaxFollowUpCount = dto.MaxFollowUpCount;
             session.Status = status;
 
-            await _sessions.UpdateAsync(session);
-
             if (timeChanged)
             {
-                await _slotService.RecalculateSlotsAsync(id);
+                var slotResult = await _slotService.RecalculateSlotsAsync(id);
+                if (!slotResult.IsSuccess)
+                {
+                    return ServiceResult<SessionDto>.Failure(
+                        slotResult.Errors.ToDictionary(pair => pair.Key, pair => pair.Value));
+                }
             }
+
+            await _sessions.UpdateAsync(session);
 
             var updated = await _sessions.GetByIdAsync(id) ?? session;
             var resultDto = updated.ToDto();

@@ -93,7 +93,11 @@ Chi tiết ở mục 4.1 của [asg2_task_split.md](asg2_task_split.md). Tóm t�
 - `Admin/Subjects`, `Admin/Rooms` (CRUD + tìm kiếm), `Admin/Dashboard` (handler `?handler=Stats` trả JSON).
 - `subject-list.js`, `room-list.js`, `dashboard.js`: danh sách và số liệu cập nhật live — chi tiết mục 7.
 
-**Chờ P3–P5:** phiên thi, gán sinh viên/slot, ngân hàng câu hỏi (xem [asg2_task_split.md](asg2_task_split.md)).
+**P3 ✅:** phiên thi, lịch thi chung và trang lịch thi cá nhân của sinh viên.
+
+**P4 ✅:** gán nhiều sinh viên vào phiên, tự chia slot, chặn trùng giờ/vượt sức chứa và cập nhật realtime cho admin + sinh viên.
+
+**Chờ P5:** ngân hàng câu hỏi và bốc câu hỏi (xem [asg2_task_split.md](asg2_task_split.md)).
 
 ## 7. Realtime (SignalR)
 
@@ -133,10 +137,30 @@ Service chỉ bắn event **sau khi** lưu DB thành công; lỗi nghiệp vụ 
 | `QuestionCreated` / `QuestionUpdated` / `QuestionDeleted` | Admin/Questions (P5) | nhóm `admins` | `QuestionDto` / `int` (id) |
 | `SlotQuestionsUpdated` | bốc câu (P5) | user đó + `admins` | `int` (slot id) |
 
-Event của lát sau chưa tồn tại ở server; bảng trên là hợp đồng chốt để client đăng ký trước/trùng khớp.
+Event của P5 chưa có luồng phát ở service; bảng trên là hợp đồng chốt để client đăng ký trước/trùng khớp.
 
 ### Tự kiểm realtime (2 cửa sổ)
 
 1. Cửa sổ A mở Dashboard, cửa sổ B thêm/xóa một môn hoặc phòng → danh sách và số liệu ở cửa sổ A đổi ngay.
 2. Mở `/hubs/exam` ở cửa sổ ẩn danh → bị 401 (hub có `[Authorize]`).
 3. DevTools → Network → WS: payload đúng bảng trên (DTO cho Created/Updated, id trần cho Deleted).
+
+## 8. Gán sinh viên và tự chia slot (P4)
+
+Admin mở **Gán sinh viên**, chọn một phiên thi sắp tới rồi tick một hoặc nhiều sinh viên. Hệ thống:
+
+- tính sức chứa bằng `floor((EndTime - StartTime) / SlotMinutes)`;
+- ưu tiên slot trống có thứ tự nhỏ nhất và tự tính giờ bắt đầu/kết thúc;
+- chặn gán trùng trong cùng phiên, vượt sức chứa, tài khoản không hợp lệ và lịch thi bị chồng giờ;
+- giữ lại vị trí slot khi gỡ sinh viên để lần gán sau lấp đúng chỗ trống sớm nhất;
+- cập nhật trực tiếp trang admin qua `SlotAssigned` / `SlotRemoved`, đồng thời chỉ gửi thay đổi lịch cá nhân tới đúng sinh viên;
+- tính lại slot khi giờ hoặc thời lượng phiên thay đổi; từ chối thay đổi nếu sức chứa mới không đủ hoặc làm sinh viên trùng lịch.
+
+Sinh viên xem kết quả tại **Lịch của tôi**. Khi admin gán, gỡ hoặc đổi giờ phiên, bảng lịch cá nhân cập nhật qua SignalR mà không cần tải lại trang.
+
+### Ca kiểm tra nhanh
+
+1. Chọn một phiên còn ít nhất 2 chỗ, tick 2 sinh viên và gán → hai slot liên tiếp xuất hiện theo đúng giờ.
+2. Gỡ slot đầu, gán một sinh viên khác → sinh viên mới nhận lại slot trống nhỏ nhất.
+3. Gán quá số chỗ còn lại hoặc gán sinh viên đã có ca trùng giờ → thao tác bị chặn và không sinh thêm slot nào.
+4. Mở **Lịch của tôi** bằng tài khoản sinh viên ở cửa sổ khác → gán/gỡ/đổi giờ từ admin được phản ánh ngay.

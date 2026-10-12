@@ -56,6 +56,12 @@ namespace asg2.DAL.Repositories
             await _db.SaveChangesAsync();
         }
 
+        public async Task AddRangeAsync(IEnumerable<ExamSlot> slots)
+        {
+            Slots.AddRange(slots);
+            await _db.SaveChangesAsync();
+        }
+
         public async Task UpdateRangeAsync(IEnumerable<ExamSlot> slots)
         {
             Slots.UpdateRange(slots);

@@ -10,6 +10,7 @@ namespace asg2.DAL.Repositories
         Task<int> CountAssignedInSessionAsync(int sessionId);
         Task<bool> HasStudentConflictAsync(int studentId, DateTime start, DateTime end, int? excludeSlotId = null);
         Task AddAsync(ExamSlot slot);
+        Task AddRangeAsync(IEnumerable<ExamSlot> slots);
         Task UpdateRangeAsync(IEnumerable<ExamSlot> slots);
         Task RemoveRangeAsync(IEnumerable<ExamSlot> slots);
     }
