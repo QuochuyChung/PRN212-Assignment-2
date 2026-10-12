@@ -1,0 +1,201 @@
+@page "{id:int}"
+@model asg2.Web.Pages.Admin.Sessions.DetailsModel
+@{
+    ViewData["Title"] = "Chi tiết phiên thi";
+    var s = Model.Session!;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div class="d-flex align-items-center">
+        <a asp-page="Index" class="btn btn-outline-secondary btn-sm me-3" title="Quay lại danh sách">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+            </svg>
+            Quay lại
+        </a>
+        <div>
+            <h1 class="h3 mb-0 fw-bold">@s.Title</h1>
+            <span class="small text-muted">ID phiên thi: #@s.Id</span>
+        </div>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-outline-primary btn-sm" asp-page="Edit" asp-route-id="@s.Id">Chỉnh sửa</a>
+        @if (s.Status == "Scheduled")
+        {
+            <button type="button" class="btn btn-outline-warning btn-sm" data-bs-toggle="modal" data-bs-target="#cancelSessionModal">
+                Hủy phiên
+            </button>
+        }
+        <a class="btn btn-outline-danger btn-sm" asp-page="Delete" asp-route-id="@s.Id">Xóa phiên</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase letter-spacing mb-1">Môn học</div>
+                <div class="fw-bold fs-5 text-dark">
+                    <span class="badge badge-soft-primary me-1">@s.SubjectCode</span>
+                </div>
+                <div class="small text-secondary mt-1">@s.SubjectName</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase letter-spacing mb-1">Phòng & Trạng thái</div>
+                <div class="fw-bold fs-5 text-dark">
+                    <span class="badge badge-soft-info">@s.RoomName</span>
+                </div>
+                <div class="small text-secondary mt-1">
+                    Trạng thái: 
+                    @if (s.Status == "Scheduled")
+                    {
+                        <span class="badge badge-soft-success">Sắp tới</span>
+                    }
+                    else if (s.Status == "Cancelled")
+                    {
+                        <span class="badge badge-soft-danger">Đã hủy</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-soft-secondary">Hoàn thành</span>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase letter-spacing mb-1">Thời gian tổ chức</div>
+                <div class="fw-bold fs-6 text-dark">@s.StartTime.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                <div class="small text-secondary mt-1">
+                    <span class="badge badge-soft-secondary">
+                        @s.StartTime.ToLocalTime().ToString("HH:mm") - @s.EndTime.ToLocalTime().ToString("HH:mm")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-md-6 col-lg-3">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small fw-semibold text-uppercase letter-spacing mb-1">Quy chuẩn vấn đáp</div>
+                <div class="fw-bold fs-6 text-dark">@s.SlotMinutes phút/thí sinh</div>
+                <div class="small text-secondary mt-1">@s.MainQuestionCount câu chính (+@s.MaxFollowUpCount phụ) | Max @s.Capacity ca</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+        <div>
+            <h5 class="card-title mb-0 fw-bold">Danh sách thí sinh & ca thi</h5>
+            <div class="small text-muted mt-1">Thí sinh được phân công theo thứ tự slot ca thi</div>
+        </div>
+        <span class="badge @(Model.Slots.Count >= s.Capacity ? "badge-soft-warning" : "badge-soft-primary") px-3 py-2">
+            Đã xếp @Model.Slots.Count / @s.Capacity ca
+        </span>
+    </div>
+    <div class="card-body p-0">
+        @if (Model.Slots.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6m-5.784 6A2.24 2.24 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.3 6.3 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1zM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5"/>
+                    </svg>
+                </div>
+                <div class="fw-semibold text-dark mb-1">Chưa có thí sinh nào được gán vào phiên thi này</div>
+                <div class="small">Các ca thi sẽ được xếp cho thí sinh khi mở đăng ký hoặc giáo viên phân bổ.</div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-3" style="width: 100px;">Thứ tự</th>
+                            <th>Mã sinh viên</th>
+                            <th>Họ và tên thí sinh</th>
+                            <th class="pe-3">Khung giờ thi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var slot in Model.Slots)
+                        {
+                            <tr>
+                                <td class="ps-3">
+                                    <span class="badge badge-soft-primary fw-bold">Slot #@slot.OrderNo</span>
+                                </td>
+                                <td>
+                                    <span class="fw-semibold font-monospace">@slot.StudentUsername</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="avatar-circle">
+                                            @(string.IsNullOrWhiteSpace(slot.StudentFullName) ? "U" : slot.StudentFullName.Substring(0, 1))
+                                        </div>
+                                        <span class="fw-medium">@slot.StudentFullName</span>
+                                    </div>
+                                </td>
+                                <td class="pe-3">
+                                    <span class="badge badge-soft-secondary">
+                                        @slot.StartTime.ToLocalTime().ToString("HH:mm") - @slot.EndTime.ToLocalTime().ToString("HH:mm")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@if (s.Status == "Scheduled")
+{
+    <!-- Modal xác nhận hủy phiên thi -->
+    <div class="modal fade" id="cancelSessionModal" tabindex="-1" aria-labelledby="cancelSessionModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header border-bottom-0 pb-0">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="avatar-circle bg-warning bg-opacity-25 text-warning" style="width: 38px; height: 38px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#b45309" viewBox="0 0 16 16">
+                                <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                            </svg>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark" id="cancelSessionModalLabel">Xác nhận hủy phiên thi</h5>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+                </div>
+                <div class="modal-body py-3">
+                    <p class="text-secondary mb-3">
+                        Bạn có chắc chắn muốn hủy phiên thi <strong class="text-dark">@s.Title</strong>?
+                    </p>
+                    <div class="alert alert-warning border-0 small mb-0 d-flex gap-2 align-items-start" style="background-color: #fffbeb; color: #92400e;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="flex-shrink-0 mt-0" viewBox="0 0 16 16">
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+                        </svg>
+                        <div>
+                            Trạng thái phiên sẽ chuyển thành <strong>Đã hủy (Cancelled)</strong>. Mọi sinh viên đang có lịch trong phiên này sẽ nhận được thông báo thời gian thực ngay lập tức.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <form method="post" asp-page-handler="Cancel" asp-route-id="@s.Id" class="d-inline m-0">
+                        <button type="submit" class="btn btn-warning shadow-sm fw-medium px-3">Xác nhận hủy</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+

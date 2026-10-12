@@ -1,0 +1,97 @@
+@page
+@model asg2.Web.Pages.Student.Schedule.IndexModel
+@{
+    ViewData["Title"] = "Lịch thi chung";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-1 fw-bold">Lịch thi vấn đáp</h1>
+        <div class="text-muted small">Danh sách các phiên thi sắp diễn ra (cập nhật trực tiếp khi có thay đổi từ phòng đào tạo)</div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-12 col-md-5">
+                <select name="subjectId" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Tất cả môn học --</option>
+                    @foreach (var sub in Model.Subjects)
+                    {
+                        <option value="@sub.Id" selected="@(Model.SubjectId == sub.Id)">@sub.Code - @sub.Name</option>
+                    }
+                </select>
+            </div>
+            @if (Model.SubjectId.HasValue)
+            {
+                <div class="col-auto">
+                    <a class="btn btn-outline-secondary" asp-page="Index">Xem tất cả môn</a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">Phiên thi</th>
+                    <th>Môn học</th>
+                    <th>Phòng thi</th>
+                    <th>Ngày thi</th>
+                    <th>Khung giờ</th>
+                    <th>Thời lượng</th>
+                    <th>Số câu hỏi</th>
+                    <th class="pe-3">Sức chứa</th>
+                </tr>
+            </thead>
+            <tbody id="schedule-body" data-filtered="@(Model.SubjectId.HasValue ? "true" : "false")">
+                @foreach (var s in Model.Sessions)
+                {
+                    <tr data-id="@s.Id">
+                        <td class="col-title ps-3 fw-bold">@s.Title</td>
+                        <td class="col-subject">
+                            <span class="badge badge-soft-primary">@s.SubjectCode</span>
+                            <div class="small text-muted">@s.SubjectName</div>
+                        </td>
+                        <td class="col-room">
+                            <span class="badge badge-soft-info">@s.RoomName</span>
+                        </td>
+                        <td class="col-date">@s.StartTime.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                        <td class="col-hours">
+                            <span class="badge badge-soft-secondary">
+                                @s.StartTime.ToLocalTime().ToString("HH:mm") - @s.EndTime.ToLocalTime().ToString("HH:mm")
+                            </span>
+                        </td>
+                        <td class="col-slot small">@s.SlotMinutes phút/thí sinh</td>
+                        <td class="col-questions small">@s.MainQuestionCount câu chính</td>
+                        <td class="col-capacity pe-3">
+                            <span class="badge @(s.AssignedCount >= s.Capacity ? "badge-soft-warning" : "badge-soft-secondary")">
+                                @s.AssignedCount / @s.Capacity
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div id="schedule-empty" class="empty-state" @(Model.Sessions.Count > 0 ? "hidden" : "")>
+        <div class="empty-state-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5z"/>
+                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5M1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4z"/>
+            </svg>
+        </div>
+        <div class="fw-semibold text-dark mb-1">Hiện chưa có phiên thi nào sắp diễn ra</div>
+        <div class="small">Lịch thi vấn đáp sẽ tự động cập nhật ngay khi phòng đào tạo mở phiên mới.</div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/schedule.js" asp-append-version="true"></script>
+}
+

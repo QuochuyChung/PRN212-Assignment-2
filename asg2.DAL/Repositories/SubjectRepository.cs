@@ -53,11 +53,7 @@ namespace asg2.DAL.Repositories
             }
         }
 
-        public Task<bool> IsInUseAsync(int id)
-        {
-            // TODO(P3): đếm ExamSession tham chiếu SubjectId khi entity phiên thi đã tồn tại.
-            // Service đã gọi TryDeleteAsync (FK) nên chỗ này chỉ cần chặn sớm với thông báo đẹp hơn.
-            return Task.FromResult(false);
-        }
+        public Task<bool> IsInUseAsync(int id) =>
+            _db.Set<ExamSession>().AnyAsync(s => s.SubjectId == id);
     }
 }

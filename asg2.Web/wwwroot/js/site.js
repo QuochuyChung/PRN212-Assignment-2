@@ -5,7 +5,8 @@ window.AppToast = (function () {
         if (!container || !window.bootstrap) { return; }
 
         var toast = document.createElement('div');
-        toast.className = 'toast align-items-center text-bg-' + (type || 'info') + ' border-0';
+        var bgClass = type === 'warning' ? 'bg-warning text-dark' : 'bg-' + (type || 'info') + ' text-white';
+        toast.className = 'toast align-items-center ' + bgClass + ' border-0';
         toast.setAttribute('role', 'alert');
 
         var wrapper = document.createElement('div');
@@ -40,3 +41,22 @@ document.addEventListener('DOMContentLoaded', function () {
         AppToast.show(flash.dataset.message, flash.dataset.type);
     }
 });
+
+// Toggle ẩn/hiện mật khẩu dùng chung cho mọi form
+document.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-password-toggle]');
+    if (!btn) { return; }
+    var input = btn.parentElement ? btn.parentElement.querySelector('input') : null;
+    if (!input) { return; }
+    var isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    btn.setAttribute('aria-label', isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+    btn.setAttribute('title', isPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu');
+    var eyeOpen = btn.querySelector('.eye-open');
+    var eyeClosed = btn.querySelector('.eye-closed');
+    if (eyeOpen && eyeClosed) {
+        eyeOpen.classList.toggle('d-none', isPassword);
+        eyeClosed.classList.toggle('d-none', !isPassword);
+    }
+});
+
