@@ -1,0 +1,30 @@
+@page
+@model asg2.Web.Pages.Admin.Rooms.DeleteModel
+@{
+    ViewData["Title"] = "Xóa phòng thi";
+}
+
+<h1 class="h3 mb-3">Xóa phòng thi</h1>
+
+<div class="row">
+    <div class="col-12 col-md-8 col-lg-5">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+        <p>Bạn có chắc muốn xóa phòng thi sau? Thao tác này không thể hoàn tác.</p>
+        <dl class="row">
+            <dt class="col-sm-4">Tên phòng</dt>
+            <dd class="col-sm-8">@Model.Room!.Name</dd>
+            <dt class="col-sm-4">Tòa nhà</dt>
+            <dd class="col-sm-8">@(Model.Room.Building ?? "—")</dd>
+            <dt class="col-sm-4">Trạng thái</dt>
+            <dd class="col-sm-8">@(Model.Room.IsActive ? "Hoạt động" : "Ngừng sử dụng")</dd>
+        </dl>
+        <p class="text-muted small">Nếu phòng đã có phiên thi, hệ thống sẽ không cho xóa.</p>
+
+        <form method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger">Xóa</button>
+            <a class="btn btn-link" asp-page="Index">Hủy</a>
+        </form>
+    </div>
+</div>
