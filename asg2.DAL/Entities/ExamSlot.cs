@@ -17,5 +17,7 @@ namespace asg2.DAL.Entities
 
         public DateTime StartTime { get; set; }
         public DateTime EndTime { get; set; }
+
+        public ICollection<SlotQuestion> SlotQuestions { get; set; } = new List<SlotQuestion>();
     }
 }

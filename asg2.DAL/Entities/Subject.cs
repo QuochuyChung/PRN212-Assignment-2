@@ -10,5 +10,7 @@ namespace asg2.DAL.Entities
 
         /// <summary>Tên môn học, tối đa 100 ký tự.</summary>
         public string Name { get; set; } = string.Empty;
+
+        public ICollection<Question> Questions { get; set; } = new List<Question>();
     }
 }

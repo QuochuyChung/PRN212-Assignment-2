@@ -10,17 +10,20 @@ namespace asg2.BLL.Services
         private readonly ISubjectRepository _subjects;
         private readonly IRoomRepository _rooms;
         private readonly IExamSessionRepository _sessions;
+        private readonly IQuestionRepository _questions;
 
         public DashboardService(
             IAccountRepository accounts,
             ISubjectRepository subjects,
             IRoomRepository rooms,
-            IExamSessionRepository sessions)
+            IExamSessionRepository sessions,
+            IQuestionRepository questions)
         {
             _accounts = accounts;
             _subjects = subjects;
             _rooms = rooms;
             _sessions = sessions;
+            _questions = questions;
         }
 
         public async Task<DashboardStatsDto> GetStatsAsync()
@@ -34,8 +37,7 @@ namespace asg2.BLL.Services
                 ActiveRooms = await _rooms.CountActiveAsync(),
                 TotalStudents = students.Count,
                 TotalSessions = await _sessions.CountAsync(),
-                // TODO(P5): đếm Question khi entity đã tồn tại (đọc repo của P5, không ghi).
-                TotalQuestions = 0
+                TotalQuestions = await _questions.CountAsync()
             };
         }
     }
