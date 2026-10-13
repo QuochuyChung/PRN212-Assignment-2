@@ -37,6 +37,9 @@ namespace asg2.DAL.Repositories
         public Task<ExamSlot?> GetByIdAsync(int id) =>
             Slots
                 .Include(s => s.Session)
+                    .ThenInclude(session => session!.Subject)
+                .Include(s => s.Session)
+                    .ThenInclude(session => session!.Room)
                 .Include(s => s.Student)
                 .FirstOrDefaultAsync(s => s.Id == id);
 

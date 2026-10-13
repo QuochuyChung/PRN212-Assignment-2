@@ -5,6 +5,7 @@ namespace asg2.BLL.Services
 {
     public interface ISlotService
     {
+        Task<SlotDto?> GetByIdAsync(int slotId);
         Task<IReadOnlyList<SlotDto>> GetSlotsOfSessionAsync(int sessionId);
         Task<IReadOnlyList<SlotDto>> GetMySlotsAsync(int studentId);
         Task<ServiceResult> RecalculateSlotsAsync(int sessionId);

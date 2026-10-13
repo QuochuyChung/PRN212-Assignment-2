@@ -13,17 +13,26 @@ namespace asg2.BLL.Services
         private readonly IExamSessionRepository _sessions;
         private readonly IAccountRepository _accounts;
         private readonly IRealtimeNotifier _notifier;
+        private readonly IQuestionPickerService _picker;
 
         public SlotService(
             IExamSlotRepository slots,
             IExamSessionRepository sessions,
             IAccountRepository accounts,
-            IRealtimeNotifier notifier)
+            IRealtimeNotifier notifier,
+            IQuestionPickerService picker)
         {
             _slots = slots;
             _sessions = sessions;
             _accounts = accounts;
             _notifier = notifier;
+            _picker = picker;
+        }
+
+        public async Task<SlotDto?> GetByIdAsync(int slotId)
+        {
+            var slot = await _slots.GetByIdAsync(slotId);
+            return slot?.ToDto();
         }
 
         public async Task<IReadOnlyList<SlotDto>> GetSlotsOfSessionAsync(int sessionId)
@@ -284,6 +293,11 @@ namespace asg2.BLL.Services
             }).ToList();
 
             await _slots.AddRangeAsync(newSlots);
+
+            foreach (var slot in newSlots.OrderBy(s => s.OrderNo))
+            {
+                await _picker.PickForSlotAsync(slot.Id);
+            }
 
             var resultDtos = newSlots
                 .OrderBy(slot => slot.OrderNo)

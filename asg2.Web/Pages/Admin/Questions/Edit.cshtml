@@ -1,0 +1,71 @@
+@page "{id:int}"
+@model asg2.Web.Pages.Admin.Questions.EditModel
+@{
+    ViewData["Title"] = $"Chỉnh sửa câu hỏi #{Model.Id}";
+}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h1 class="h3 mb-1 fw-bold">Chỉnh sửa câu hỏi #@Model.Id</h1>
+                <div class="text-muted small">Cập nhật nội dung, mức độ tư duy hoặc trạng thái kích hoạt.</div>
+            </div>
+            <a asp-page="Index" class="btn btn-outline-secondary btn-sm">Quay lại danh sách</a>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+                <form method="post">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Input.SubjectId" class="form-label fw-semibold"></label>
+                        <select asp-for="Input.SubjectId" class="form-select">
+                            <option value="">-- Chọn môn học --</option>
+                            @foreach (var sub in Model.Subjects)
+                            {
+                                <option value="@sub.Id">@sub.Code — @sub.Name</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Input.SubjectId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.BloomLevel" class="form-label fw-semibold"></label>
+                        <select asp-for="Input.BloomLevel" class="form-select">
+                            <option value="1">Mức 1 — Nhận biết (Remembering/Knowledge)</option>
+                            <option value="2">Mức 2 — Thông hiểu (Understanding/Comprehension)</option>
+                            <option value="3">Mức 3 — Vận dụng (Applying/Application)</option>
+                            <option value="4">Mức 4 — Vận dụng cao (Analyzing/Evaluating/Creating)</option>
+                        </select>
+                        <span asp-validation-for="Input.BloomLevel" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Input.Content" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Input.Content" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Input.Content" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check">
+                        <input asp-for="Input.IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="Input.IsActive" class="form-check-label fw-semibold">Đang hoạt động (cho phép bốc trong ca thi)</label>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-page="Index" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

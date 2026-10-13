@@ -1,0 +1,287 @@
+@page
+@model asg2.Web.Pages.Admin.Questions.IndexModel
+@{
+    ViewData["Title"] = "Ngân hàng câu hỏi";
+    var paged = Model.PagedResult;
+    var stats = Model.Stats;
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+    <div>
+        <h1 class="h3 mb-1 fw-bold">Ngân hàng câu hỏi</h1>
+        <div class="text-muted small">Quản lý câu hỏi vấn đáp theo môn học và mức độ tư duy Bloom (tự động cập nhật realtime).</div>
+    </div>
+    <div>
+        <a asp-page="Create" class="btn btn-primary d-inline-flex align-items-center gap-1 shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <path d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2"/>
+            </svg>
+            <span>Thêm câu hỏi mới</span>
+        </a>
+    </div>
+</div>
+
+@* Thẻ thống kê tỷ lệ Bloom *@
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-muted small fw-medium">Tổng số câu hỏi</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@stats.TotalQuestions</div>
+                <div class="small text-success">@stats.ActiveQuestions đang hoạt động</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-info small fw-bold">Mức 1 — Nhận biết</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@stats.BloomLevel1Count</div>
+                <div class="small text-muted">Định nghĩa, khái niệm</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-primary small fw-bold">Mức 2 — Thông hiểu</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@stats.BloomLevel2Count</div>
+                <div class="small text-muted">Giải thích, phân biệt</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-warning small fw-bold">Mức 3 — Vận dụng</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@stats.BloomLevel3Count</div>
+                <div class="small text-muted">Áp dụng, viết code</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-danger small fw-bold">Mức 4 — Vận dụng cao</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@stats.BloomLevel4Count</div>
+                <div class="small text-muted">Phân tích, tối ưu hóa</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card shadow-sm h-100 border-0 bg-white">
+            <div class="card-body">
+                <div class="text-muted small fw-medium">Trang hiển thị</div>
+                <div class="fs-4 fw-bold text-dark mt-1">@paged.PageIndex / @Math.Max(1, paged.TotalPages)</div>
+                <div class="small text-muted">@paged.TotalCount kết quả lọc</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="form-label small fw-semibold text-muted">Lọc theo môn học</label>
+                <select name="subjectId" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- Tất cả môn học --</option>
+                    @foreach (var sub in Model.Subjects)
+                    {
+                        <option value="@sub.Id" selected="@(Model.SubjectId == sub.Id)">@sub.Code — @sub.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-semibold text-muted">Mức độ Bloom</label>
+                <select name="bloomLevel" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- Tất cả mức độ --</option>
+                    <option value="1" selected="@(Model.BloomLevel == 1)">Mức 1: Nhận biết</option>
+                    <option value="2" selected="@(Model.BloomLevel == 2)">Mức 2: Thông hiểu</option>
+                    <option value="3" selected="@(Model.BloomLevel == 3)">Mức 3: Vận dụng</option>
+                    <option value="4" selected="@(Model.BloomLevel == 4)">Mức 4: Vận dụng cao</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-semibold text-muted">Tìm kiếm nội dung</label>
+                <input type="search" name="q" value="@Model.Q" class="form-control form-control-sm" placeholder="Từ khóa nội dung..." />
+            </div>
+            <div class="col-12 col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-outline-primary w-100">Tìm kiếm</button>
+                @if (Model.SubjectId.HasValue || Model.BloomLevel.HasValue || !string.IsNullOrWhiteSpace(Model.Q))
+                {
+                    <a asp-page="Index" class="btn btn-sm btn-outline-secondary" title="Xóa bộ lọc">✕</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0" id="questions-table">
+            <thead>
+                <tr>
+                    <th class="ps-3" style="width: 70px;">#ID</th>
+                    <th style="width: 140px;">Môn học</th>
+                    <th style="width: 150px;">Mức độ Bloom</th>
+                    <th>Nội dung câu hỏi</th>
+                    <th style="width: 130px;">Trạng thái</th>
+                    <th class="text-end pe-3" style="width: 220px;">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="question-list-body">
+                @foreach (var item in paged.Items)
+                {
+                    var bloomBadgeClass = item.BloomLevel switch
+                    {
+                        1 => "badge-soft-info",
+                        2 => "badge-soft-primary",
+                        3 => "badge-soft-warning",
+                        4 => "badge-soft-danger",
+                        _ => "badge-soft-secondary"
+                    };
+
+                    <tr data-question-id="@item.Id" data-subject-id="@item.SubjectId" data-bloom="@item.BloomLevel">
+                        <td class="ps-3 fw-semibold text-muted">#@item.Id</td>
+                        <td>
+                            <span class="badge badge-soft-primary fw-bold">@item.SubjectCode</span>
+                            <div class="small text-muted text-truncate" style="max-width: 140px;" title="@item.SubjectName">@item.SubjectName</div>
+                        </td>
+                        <td>
+                            <span class="badge @bloomBadgeClass">Mức @item.BloomLevel: @item.BloomLevelName</span>
+                        </td>
+                        <td>
+                            <div class="question-content fw-medium text-dark text-break">@item.Content</div>
+                        </td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge badge-soft-success">Hoạt động</span>
+                            }
+                            else
+                            {
+                                <span class="badge badge-soft-secondary">Đã khóa</span>
+                            }
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-sm btn-outline-info py-1 px-2"
+                                        onclick="showQuestionDetail('@item.Id', '@item.SubjectCode - @item.SubjectName', '@item.BloomLevel', '@item.BloomLevelName', @System.Text.Json.JsonSerializer.Serialize(item.Content))"
+                                        title="Xem chi tiết">
+                                    Xem
+                                </button>
+                                <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary py-1 px-2" title="Chỉnh sửa">
+                                    Sửa
+                                </a>
+                                <form method="post" asp-page-handler="ToggleActive" asp-route-id="@item.Id" class="d-inline m-0">
+                                    <input type="hidden" name="subjectId" value="@Model.SubjectId" />
+                                    <input type="hidden" name="bloomLevel" value="@Model.BloomLevel" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <input type="hidden" name="p" value="@Model.PageNumber" />
+                                    <button type="submit" class="btn btn-sm @(item.IsActive ? "btn-outline-warning" : "btn-outline-success") py-1 px-2"
+                                            title="@(item.IsActive ? "Khóa câu hỏi" : "Mở khóa câu hỏi")">
+                                        @(item.IsActive ? "Khóa" : "Mở")
+                                    </button>
+                                </form>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" class="d-inline m-0"
+                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa câu hỏi #@item.Id?');">
+                                    <input type="hidden" name="subjectId" value="@Model.SubjectId" />
+                                    <input type="hidden" name="bloomLevel" value="@Model.BloomLevel" />
+                                    <input type="hidden" name="q" value="@Model.Q" />
+                                    <input type="hidden" name="p" value="@Model.PageNumber" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Xóa">
+                                        Xóa
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @* Phân trang *@
+    @if (paged.TotalPages > 1)
+    {
+        <div class="card-footer bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div class="small text-muted">
+                Hiển thị từ trang <strong>@paged.PageIndex</strong> trên tổng số <strong>@paged.TotalPages</strong> trang (@paged.TotalCount câu hỏi)
+            </div>
+            <nav aria-label="Phân trang câu hỏi">
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(paged.HasPreviousPage ? "" : "disabled")">
+                        <a class="page-link" asp-page="Index" asp-route-p="@(paged.PageIndex - 1)" asp-route-subjectId="@Model.SubjectId" asp-route-bloomLevel="@Model.BloomLevel" asp-route-q="@Model.Q">Trước</a>
+                    </li>
+                    @for (int i = 1; i <= paged.TotalPages; i++)
+                    {
+                        var activeClass = i == paged.PageIndex ? "active" : "";
+                        <li class="page-item @activeClass">
+                            <a class="page-link" asp-page="Index" asp-route-p="@i" asp-route-subjectId="@Model.SubjectId" asp-route-bloomLevel="@Model.BloomLevel" asp-route-q="@Model.Q">@i</a>
+                        </li>
+                    }
+                    <li class="page-item @(paged.HasNextPage ? "" : "disabled")">
+                        <a class="page-link" asp-page="Index" asp-route-p="@(paged.PageIndex + 1)" asp-route-subjectId="@Model.SubjectId" asp-route-bloomLevel="@Model.BloomLevel" asp-route-q="@Model.Q">Sau</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    }
+
+    <div id="questions-empty" class="empty-state py-5 text-center" hidden="@(paged.Items.Count > 0)">
+        <div class="empty-state-icon mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+            </svg>
+        </div>
+        <div class="fw-semibold text-dark">Chưa có câu hỏi nào</div>
+        <div class="small text-muted">Thêm câu hỏi mới hoặc điều chỉnh bộ lọc để xem danh sách.</div>
+    </div>
+</div>
+
+@* Modal xem chi tiết câu hỏi *@
+<div class="modal fade" id="questionDetailModal" tabindex="-1" aria-labelledby="questionDetailModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow border-0">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="questionDetailModalLabel">Chi tiết câu hỏi vấn đáp</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="modalSubject" class="badge badge-soft-primary fs-6"></span>
+                    <span id="modalBloom" class="badge px-3 py-1"></span>
+                </div>
+                <div class="p-3 bg-light rounded border">
+                    <div class="text-muted small mb-1 fw-bold">NỘI DUNG CÂU HỎI:</div>
+                    <div id="modalContent" class="fs-6 text-dark lh-base"></div>
+                </div>
+            </div>
+            <div class="modal-footer bg-white border-top-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/question-list.js" asp-append-version="true"></script>
+    <script>
+        function showQuestionDetail(id, subject, bloomLevel, bloomName, content) {
+            document.getElementById('modalSubject').textContent = subject;
+            var bloomBadge = document.getElementById('modalBloom');
+            bloomBadge.textContent = 'Mức ' + bloomLevel + ': ' + bloomName;
+            var cls = 'badge-soft-secondary';
+            if (bloomLevel === '1' || bloomLevel === 1) cls = 'badge-soft-info';
+            else if (bloomLevel === '2' || bloomLevel === 2) cls = 'badge-soft-primary';
+            else if (bloomLevel === '3' || bloomLevel === 3) cls = 'badge-soft-warning';
+            else if (bloomLevel === '4' || bloomLevel === 4) cls = 'badge-soft-danger';
+            bloomBadge.className = 'badge px-3 py-1 ' + cls;
+            document.getElementById('modalContent').textContent = content;
+            var modal = new bootstrap.Modal(document.getElementById('questionDetailModal'));
+            modal.show();
+        }
+    </script>
+}

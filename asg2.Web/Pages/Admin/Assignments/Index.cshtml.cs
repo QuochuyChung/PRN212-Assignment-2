@@ -11,15 +11,18 @@ namespace asg2.Web.Pages.Admin.Assignments
         private readonly IExamSessionService _sessions;
         private readonly IAccountService _accounts;
         private readonly ISlotService _slots;
+        private readonly IQuestionPickerService _picker;
 
         public IndexModel(
             IExamSessionService sessions,
             IAccountService accounts,
-            ISlotService slots)
+            ISlotService slots,
+            IQuestionPickerService picker)
         {
             _sessions = sessions;
             _accounts = accounts;
             _slots = slots;
+            _picker = picker;
         }
 
         [BindProperty(SupportsGet = true)]
@@ -33,6 +36,7 @@ namespace asg2.Web.Pages.Admin.Assignments
         public IReadOnlyList<AccountDto> Students { get; private set; } = Array.Empty<AccountDto>();
         public IReadOnlyList<SlotDto> Slots { get; private set; } = Array.Empty<SlotDto>();
         public HashSet<int> AssignedStudentIds { get; private set; } = new();
+        public Dictionary<int, IReadOnlyList<SlotQuestionDto>> SlotQuestionsMap { get; private set; } = new();
 
         public async Task OnGetAsync()
         {
@@ -60,7 +64,7 @@ namespace asg2.Web.Pages.Admin.Assignments
                 return Page();
             }
 
-            TempData["Success"] = $"Đã xếp lịch cho {result.Value!.Count} sinh viên.";
+            TempData["Success"] = $"Đã xếp lịch cho {result.Value!.Count} sinh viên và bốc câu hỏi tương ứng.";
             return RedirectToPage(new { sessionId = SessionId.Value });
         }
 
@@ -75,6 +79,38 @@ namespace asg2.Web.Pages.Admin.Assignments
             else
             {
                 TempData["Success"] = "Đã gỡ sinh viên khỏi phiên thi.";
+            }
+
+            return RedirectToPage(new { sessionId });
+        }
+
+        public async Task<IActionResult> OnPostRepickSlotAsync(int slotId, int sessionId)
+        {
+            var result = await _picker.PickForSlotAsync(slotId);
+            if (!result.IsSuccess)
+            {
+                TempData["Error"] = result.Errors.Values.SelectMany(m => m).FirstOrDefault()
+                    ?? "Không thể bốc lại câu hỏi.";
+            }
+            else
+            {
+                TempData["Success"] = "Đã bốc lại câu hỏi cho ca thi thành công.";
+            }
+
+            return RedirectToPage(new { sessionId });
+        }
+
+        public async Task<IActionResult> OnPostRepickSessionAsync(int sessionId)
+        {
+            var result = await _picker.PickForAllSlotsInSessionAsync(sessionId);
+            if (!result.IsSuccess)
+            {
+                TempData["Error"] = result.Errors.Values.SelectMany(m => m).FirstOrDefault()
+                    ?? "Không thể bốc lại câu hỏi cho phiên.";
+            }
+            else
+            {
+                TempData["Success"] = $"Đã bốc lại toàn bộ câu hỏi cho {result.Value?.Count ?? 0} ca thi trong phiên.";
             }
 
             return RedirectToPage(new { sessionId });
@@ -99,6 +135,11 @@ namespace asg2.Web.Pages.Admin.Assignments
 
             Slots = await _slots.GetSlotsOfSessionAsync(SessionId.Value);
             AssignedStudentIds = Slots.Select(slot => slot.StudentId).ToHashSet();
+
+            foreach (var slot in Slots)
+            {
+                SlotQuestionsMap[slot.Id] = await _picker.GetQuestionsOfSlotAsync(slot.Id);
+            }
         }
     }
 }

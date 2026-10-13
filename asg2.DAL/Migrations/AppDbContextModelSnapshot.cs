@@ -152,6 +152,39 @@ namespace asg2.DAL.Migrations
                     b.ToTable("ExamSlots", (string)null);
                 });
 
+            modelBuilder.Entity("asg2.DAL.Entities.Question", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BloomLevel")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectId");
+
+                    b.HasIndex("SubjectId", "BloomLevel");
+
+                    b.ToTable("Questions", (string)null);
+                });
+
             modelBuilder.Entity("asg2.DAL.Entities.Room", b =>
                 {
                     b.Property<int>("Id")
@@ -180,6 +213,26 @@ namespace asg2.DAL.Migrations
                         .IsUnique();
 
                     b.ToTable("Rooms", (string)null);
+                });
+
+            modelBuilder.Entity("asg2.DAL.Entities.SlotQuestion", b =>
+                {
+                    b.Property<int>("SlotId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("OrderNo")
+                        .HasColumnType("int");
+
+                    b.HasKey("SlotId", "QuestionId");
+
+                    b.HasIndex("QuestionId");
+
+                    b.HasIndex("SlotId", "OrderNo");
+
+                    b.ToTable("SlotQuestions", (string)null);
                 });
 
             modelBuilder.Entity("asg2.DAL.Entities.Subject", b =>
@@ -246,9 +299,54 @@ namespace asg2.DAL.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("asg2.DAL.Entities.Question", b =>
+                {
+                    b.HasOne("asg2.DAL.Entities.Subject", "Subject")
+                        .WithMany("Questions")
+                        .HasForeignKey("SubjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Subject");
+                });
+
+            modelBuilder.Entity("asg2.DAL.Entities.SlotQuestion", b =>
+                {
+                    b.HasOne("asg2.DAL.Entities.Question", "Question")
+                        .WithMany("SlotQuestions")
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("asg2.DAL.Entities.ExamSlot", "Slot")
+                        .WithMany("SlotQuestions")
+                        .HasForeignKey("SlotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Slot");
+                });
+
             modelBuilder.Entity("asg2.DAL.Entities.ExamSession", b =>
                 {
                     b.Navigation("Slots");
+                });
+
+            modelBuilder.Entity("asg2.DAL.Entities.ExamSlot", b =>
+                {
+                    b.Navigation("SlotQuestions");
+                });
+
+            modelBuilder.Entity("asg2.DAL.Entities.Question", b =>
+                {
+                    b.Navigation("SlotQuestions");
+                });
+
+            modelBuilder.Entity("asg2.DAL.Entities.Subject", b =>
+                {
+                    b.Navigation("Questions");
                 });
 #pragma warning restore 612, 618
         }
