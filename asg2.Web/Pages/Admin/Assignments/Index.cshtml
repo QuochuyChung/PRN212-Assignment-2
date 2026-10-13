@@ -86,7 +86,15 @@
                             }
                             <span asp-validation-for="StudentIds" class="text-danger small d-block mb-2"></span>
 
-                            <input id="student-search" type="search" class="form-control mb-3" placeholder="Tìm theo tên hoặc tên đăng nhập..." />
+                            <input id="student-search" type="search" class="form-control mb-2" placeholder="Tìm theo tên hoặc tên đăng nhập..." />
+
+                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                <div class="btn-group btn-group-sm" role="group" aria-label="Chọn nhanh sinh viên">
+                                    <button id="select-visible-students" type="button" class="btn btn-outline-primary">Chọn đang hiển thị</button>
+                                    <button id="clear-student-selection" type="button" class="btn btn-outline-secondary">Bỏ chọn</button>
+                                </div>
+                                <span class="small text-muted"><strong id="selected-student-count">0</strong> sinh viên đã chọn</span>
+                            </div>
 
                             <div id="student-list" class="border rounded overflow-auto" style="max-height: 430px;">
                                 @foreach (var student in Model.Students)
@@ -94,6 +102,7 @@
                                     var assigned = Model.AssignedStudentIds.Contains(student.Id);
                                     <label class="student-choice d-flex align-items-center gap-3 px-3 py-2 border-bottom @(assigned ? "bg-light text-muted" : "")"
                                            data-student-id="@student.Id"
+                                           data-assigned="@(assigned ? "true" : "false")"
                                            data-search="@($"{student.Username} {student.FullName}".ToLowerInvariant())">
                                         <input class="form-check-input mt-0" type="checkbox" name="StudentIds" value="@student.Id" disabled="@assigned" />
                                         <span class="flex-grow-1">
@@ -107,8 +116,8 @@
 
                             <div id="student-empty" class="text-center text-muted small py-3" hidden>Không tìm thấy sinh viên phù hợp.</div>
 
-                            <button id="assign-button" type="submit" class="btn btn-primary w-100 mt-3" disabled="@(remainingCapacity == 0)">
-                                Gán sinh viên đã chọn
+                            <button id="assign-button" type="submit" class="btn btn-primary w-100 mt-3" disabled>
+                                Gán <span id="assign-button-count">0</span> sinh viên đã chọn
                             </button>
                         </form>
                     </div>
