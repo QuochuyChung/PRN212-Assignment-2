@@ -78,8 +78,12 @@
         tr.appendChild(tdOrder);
 
         // Questions
-        var tdQues = cell('col-questions pe-3 small text-secondary');
-        tdQues.textContent = slot.mainQuestionCount + ' câu chính';
+        var tdQues = cell('col-questions pe-3');
+        var linkQues = document.createElement('a');
+        linkQues.className = 'btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1 py-1 px-2';
+        linkQues.href = '/Student/SlotDetail?slotId=' + encodeURIComponent(slot.id);
+        linkQues.textContent = 'Xem đề (' + slot.mainQuestionCount + ' câu)';
+        tdQues.appendChild(linkQues);
         tr.appendChild(tdQues);
 
         return tr;

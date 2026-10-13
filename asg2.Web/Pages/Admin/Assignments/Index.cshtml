@@ -117,9 +117,25 @@
 
             <div class="col-12 col-xl-7">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white py-3">
-                        <h2 class="h5 mb-1 fw-bold">Danh sách khung giờ</h2>
-                        <div class="small text-muted">Slot trống được giữ lại và ưu tiên lấp từ thứ tự nhỏ nhất.</div>
+                    <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h2 class="h5 mb-1 fw-bold">Danh sách khung giờ</h2>
+                            <div class="small text-muted">Slot trống được giữ lại và ưu tiên lấp từ thứ tự nhỏ nhất.</div>
+                        </div>
+                        @if (Model.Slots.Count > 0)
+                        {
+                            <form method="post" asp-page-handler="RepickSession" class="d-inline m-0">
+                                <input type="hidden" name="sessionId" value="@session.Id" />
+                                <button type="submit" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1"
+                                        title="Bốc lại câu hỏi cho toàn bộ slot theo quy tắc không trùng slot liền trước">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                                    </svg>
+                                    <span>Bốc lại tất cả câu hỏi</span>
+                                </button>
+                            </form>
+                        }
                     </div>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0">
@@ -128,12 +144,16 @@
                                     <th class="ps-3">Slot</th>
                                     <th>Sinh viên</th>
                                     <th>Khung giờ</th>
+                                    <th>Câu hỏi đã bốc</th>
                                     <th class="text-end pe-3">Thao tác</th>
                                 </tr>
                             </thead>
                             <tbody id="assignment-slots-body">
                                 @foreach (var slot in Model.Slots)
                                 {
+                                    Model.SlotQuestionsMap.TryGetValue(slot.Id, out var qList);
+                                    qList ??= Array.Empty<asg2.BLL.Dtos.SlotQuestionDto>();
+
                                     <tr data-slot-id="@slot.Id" data-student-id="@slot.StudentId" data-order-no="@slot.OrderNo">
                                         <td class="col-order ps-3"><span class="badge badge-soft-primary">#@slot.OrderNo</span></td>
                                         <td class="col-student">
@@ -145,12 +165,38 @@
                                                 @slot.StartTime.ToLocalTime().ToString("HH:mm") – @slot.EndTime.ToLocalTime().ToString("HH:mm")
                                             </span>
                                         </td>
+                                        <td class="col-questions">
+                                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                @if (qList.Count > 0)
+                                                {
+                                                    @foreach (var q in qList)
+                                                    {
+                                                        <span class="badge badge-soft-info" title="@q.Content" style="cursor: help;">
+                                                            #@q.OrderNo (Mức @q.BloomLevel)
+                                                        </span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="small text-muted">Chưa bốc</span>
+                                                }
+                                            </div>
+                                        </td>
                                         <td class="text-end pe-3">
-                                            <form method="post" asp-page-handler="Remove" class="d-inline remove-slot-form">
-                                                <input type="hidden" name="sessionId" value="@session.Id" />
-                                                <input type="hidden" name="slotId" value="@slot.Id" />
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Gỡ</button>
-                                            </form>
+                                            <div class="d-inline-flex gap-1 align-items-center">
+                                                <form method="post" asp-page-handler="RepickSlot" class="d-inline m-0">
+                                                    <input type="hidden" name="sessionId" value="@session.Id" />
+                                                    <input type="hidden" name="slotId" value="@slot.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2" title="Bốc lại câu hỏi cho riêng slot này">
+                                                        Bốc lại
+                                                    </button>
+                                                </form>
+                                                <form method="post" asp-page-handler="Remove" class="d-inline remove-slot-form m-0">
+                                                    <input type="hidden" name="sessionId" value="@session.Id" />
+                                                    <input type="hidden" name="slotId" value="@slot.Id" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2">Gỡ</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 }

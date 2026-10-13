@@ -1,0 +1,165 @@
+@page
+@model asg2.Web.Pages.Student.SlotDetail.IndexModel
+@{
+    ViewData["Title"] = "Chi tiết câu hỏi vấn đáp";
+    var slot = Model.Slot;
+}
+
+@if (slot != null)
+{
+    <div id="slot-detail-container" data-slot-id="@slot.Id" data-session-id="@slot.SessionId">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+            <div>
+                <a asp-page="/Student/MySlots/Index" class="btn btn-outline-secondary btn-sm mb-2 d-inline-flex align-items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8"/>
+                    </svg>
+                    <span>Quay lại Lịch của tôi</span>
+                </a>
+                <h1 class="h3 mb-1 fw-bold">Bộ câu hỏi vấn đáp của bạn</h1>
+                <div class="text-muted small">Ca thi vấn đáp được bốc đề ngẫu nhiên (tự động cập nhật trực tiếp nếu giáo viên bốc lại).</div>
+            </div>
+            <div>
+                <span class="badge badge-soft-primary fs-6 px-3 py-2 fw-bold">
+                    Slot #@slot.OrderNo
+                </span>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Phiên thi & Môn học</div>
+                        <div class="fw-bold text-dark">@slot.SessionTitle</div>
+                        <div class="small text-primary fw-semibold">@slot.SubjectCode — @slot.SubjectName</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Phòng thi</div>
+                        <div class="fw-bold text-dark">@slot.RoomName</div>
+                        <div class="small text-muted">Có mặt trước 10 phút</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Khung giờ thi của bạn</div>
+                        <div class="fw-bold text-success fs-6">
+                            @slot.StartTime.ToLocalTime().ToString("HH:mm") – @slot.EndTime.ToLocalTime().ToString("HH:mm")
+                        </div>
+                        <div class="small text-muted">Ngày: @slot.StartTime.ToLocalTime().ToString("dd/MM/yyyy")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-6 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="text-muted small">Số câu hỏi quy định</div>
+                        <div class="fw-bold text-dark fs-6" id="slot-question-count">@Model.Questions.Count câu hỏi</div>
+                        <div class="small text-muted">Tránh trùng lặp với thí sinh trước</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-info border-0 shadow-sm d-flex align-items-center gap-3 mb-4" style="background-color: #f0f9ff; color: #0369a1; border-left: 4px solid #0284c7 !important;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="flex-shrink-0" viewBox="0 0 16 16">
+                <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2"/>
+            </svg>
+            <div class="small">
+                <strong>Hướng dẫn thí sinh:</strong> Thí sinh chuẩn bị các nội dung câu hỏi dưới đây trước khi đến lượt phỏng vấn vấn đáp. Khi giám khảo yêu cầu bốc lại, nội dung sẽ được cập nhật trực tiếp tại đây mà không cần tải lại trang.
+            </div>
+        </div>
+
+        <div id="questions-list" class="d-flex flex-column gap-3">
+            @for (int i = 0; i < Model.Questions.Count; i++)
+            {
+                var q = Model.Questions[i];
+                var bloomBadgeClass = q.BloomLevel switch
+                {
+                    1 => "badge-soft-info",
+                    2 => "badge-soft-primary",
+                    3 => "badge-soft-warning",
+                    4 => "badge-soft-danger",
+                    _ => "badge-soft-secondary"
+                };
+
+                <div class="card shadow-sm question-item-card" data-question-id="@q.QuestionId" data-order-no="@q.OrderNo">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="fw-bold text-dark d-flex align-items-center gap-2">
+                            <span class="badge badge-soft-primary px-2 py-1">Câu hỏi #@q.OrderNo</span>
+                        </div>
+                        <span class="badge @bloomBadgeClass px-3 py-1">
+                            Mức @q.BloomLevel: @q.BloomLevelName
+                        </span>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="card-text fs-6 mb-0 text-dark lh-base question-item-content">@q.Content</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div id="questions-empty" class="empty-state card shadow-sm py-5 text-center" hidden="@(Model.Questions.Count > 0)">
+            <div class="empty-state-icon mb-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="text-muted" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                    <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286m1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94"/>
+                </svg>
+            </div>
+            <div class="fw-semibold text-dark">Chưa có câu hỏi nào được bốc</div>
+            <div class="small text-muted">Giáo viên chưa phân bổ câu hỏi cho ca thi này. Vui lòng quay lại sau.</div>
+        </div>
+
+        @* Tiêu chí đánh giá câu hỏi theo thang Bloom *@
+        <div class="card shadow-sm mt-4 border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold fs-6 text-dark">Thang đánh giá độ khó và tiêu chí trả lời (Thang tư duy Bloom)</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle small">
+                        <thead class="table-light">
+                            <tr>
+                                <th style="width: 130px;">Mức độ</th>
+                                <th style="width: 170px;">Tên mức</th>
+                                <th>Mục tiêu đánh giá và tiêu chí câu trả lời</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="badge badge-soft-info">Mức 1</span></td>
+                                <td class="fw-semibold">Nhận biết</td>
+                                <td>Tái hiện chính xác định nghĩa, cú pháp, khái niệm và thuật ngữ nền tảng của môn học.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-soft-primary">Mức 2</span></td>
+                                <td class="fw-semibold">Thông hiểu</td>
+                                <td>Giải thích bản chất cơ chế hoạt động, so sánh và phân tích ưu/nhược điểm giữa các giải pháp.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-soft-warning">Mức 3</span></td>
+                                <td class="fw-semibold">Vận dụng</td>
+                                <td>Áp dụng kiến thức để giải quyết bài toán thực tế, viết hoặc phân tích đoạn mã xử lý yêu cầu cụ thể.</td>
+                            </tr>
+                            <tr>
+                                <td><span class="badge badge-soft-danger">Mức 4</span></td>
+                                <td class="fw-semibold">Vận dụng cao</td>
+                                <td>Đánh giá kiến trúc hệ thống, phân tích rủi ro, tối ưu hóa hiệu năng và thiết kế quy mô lớn.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/slot-detail.js" asp-append-version="true"></script>
+}
