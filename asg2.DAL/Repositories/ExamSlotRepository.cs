@@ -53,6 +53,30 @@ namespace asg2.DAL.Repositories
                 s.StartTime < end &&
                 start < s.EndTime);
 
+        public async Task<IReadOnlyList<ExamSlot>> GetStudentConflictsAsync(
+            IEnumerable<int> studentIds,
+            DateTime start,
+            DateTime end,
+            int? excludeSessionId = null)
+        {
+            var ids = studentIds.Distinct().ToArray();
+            if (ids.Length == 0)
+            {
+                return Array.Empty<ExamSlot>();
+            }
+
+            return await Slots
+                .AsNoTracking()
+                .Where(slot =>
+                    ids.Contains(slot.StudentId) &&
+                    (excludeSessionId == null || slot.SessionId != excludeSessionId.Value) &&
+                    slot.StartTime < end &&
+                    start < slot.EndTime)
+                .OrderBy(slot => slot.StudentId)
+                .ThenBy(slot => slot.StartTime)
+                .ToListAsync();
+        }
+
         public async Task AddAsync(ExamSlot slot)
         {
             Slots.Add(slot);

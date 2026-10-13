@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.*" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.*" />
     <InternalsVisibleTo Include="test-question-picker" />
+    <InternalsVisibleTo Include="test-slot-assignment" />
   </ItemGroup>
 
 </Project>
