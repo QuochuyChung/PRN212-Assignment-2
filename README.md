@@ -97,7 +97,14 @@ Chi tiết ở mục 4.1 của [asg2_task_split.md](asg2_task_split.md). Tóm t�
 
 **P4 ✅:** gán nhiều sinh viên vào phiên, tự chia slot, chặn trùng giờ/vượt sức chứa và cập nhật realtime cho admin + sinh viên.
 
-**Chờ P5:** ngân hàng câu hỏi và bốc câu hỏi (xem [asg2_task_split.md](asg2_task_split.md)).
+**P5 ✅ (ngân hàng câu hỏi và bốc câu hỏi):**
+- Entities & Repositories: `Question`, `SlotQuestion`, `IQuestionRepository`, `ISlotQuestionRepository`.
+- Services: `QuestionService` (CRUD, validate nội dung không rỗng, mức Bloom 1-4, chống trùng nội dung trong môn, chặn xóa câu hỏi đã gán), `QuestionPickerService` (bốc ngẫu nhiên, thuật toán tránh trùng slot liền kề).
+- Pages: `Admin/Questions` (Index, Create, Edit, ToggleActive), `Student/SlotDetail` (chi tiết câu hỏi của slot).
+- Assignments tích hợp: tự động bốc đề khi gán sinh viên; bổ sung nút "Bốc lại tất cả câu hỏi" và "Bốc lại đề" cho từng slot ở `Admin/Assignments`.
+- Realtime: `QuestionCreated/Updated/Deleted` (admin), `SlotQuestionsUpdated` (sinh viên và admin). Khi admin bốc lại đề, trang `SlotDetail` của sinh viên cập nhật câu hỏi ngay lập tức.
+- Seeder: `QuestionSeeder` tạo sẵn 10-15 câu hỏi đa dạng mức Bloom cho các môn.
+- Kiểm thử tự động: `tools/test-question-picker` kiểm tra 10/10 ca test thành công 100%.
 
 ## 7. Realtime (SignalR)
 
@@ -135,9 +142,7 @@ Service chỉ bắn event **sau khi** lưu DB thành công; lỗi nghiệp vụ 
 | `SessionCreated` / `SessionUpdated` / `SessionDeleted` | Admin/Sessions (P3) | mọi client | `SessionDto` / `int` (id) |
 | `SlotAssigned` / `SlotRemoved` | Admin/Assignments (P4) | user đó + `admins` | `SlotDto` / `int` (id) |
 | `QuestionCreated` / `QuestionUpdated` / `QuestionDeleted` | Admin/Questions (P5) | nhóm `admins` | `QuestionDto` / `int` (id) |
-| `SlotQuestionsUpdated` | bốc câu (P5) | user đó + `admins` | `int` (slot id) |
-
-Event của P5 chưa có luồng phát ở service; bảng trên là hợp đồng chốt để client đăng ký trước/trùng khớp.
+| `SlotQuestionsUpdated` | bốc câu (P5) | user đó + `admins` | `{ slotId, sessionId, questions }` |
 
 ### Tự kiểm realtime (2 cửa sổ)
 
@@ -158,9 +163,35 @@ Admin mở **Gán sinh viên**, chọn một phiên thi sắp tới rồi tick m
 
 Sinh viên xem kết quả tại **Lịch của tôi**. Khi admin gán, gỡ hoặc đổi giờ phiên, bảng lịch cá nhân cập nhật qua SignalR mà không cần tải lại trang.
 
-### Ca kiểm tra nhanh
+## 9. Ngân hàng câu hỏi và thuật toán bốc đề (P5)
 
-1. Chọn một phiên còn ít nhất 2 chỗ, tick 2 sinh viên và gán → hai slot liên tiếp xuất hiện theo đúng giờ.
-2. Gỡ slot đầu, gán một sinh viên khác → sinh viên mới nhận lại slot trống nhỏ nhất.
-3. Gán quá số chỗ còn lại hoặc gán sinh viên đã có ca trùng giờ → thao tác bị chặn và không sinh thêm slot nào.
-4. Mở **Lịch của tôi** bằng tài khoản sinh viên ở cửa sổ khác → gán/gỡ/đổi giờ từ admin được phản ánh ngay.
+### Thuật toán bốc đề ngẫu nhiên tránh trùng slot liền trước
+1. Khi bốc câu hỏi cho slot thứ $n$ trong phiên:
+   - Hệ thống xác định danh sách các câu hỏi đã được gán cho slot thứ $n-1$ (slot liền trước).
+   - Ngân hàng câu hỏi của môn được chia làm 2 tập: $A$ (các câu chưa xuất hiện ở slot $n-1$) và $B$ (các câu đã xuất hiện ở slot $n-1$).
+   - Cả 2 tập được xáo trộn ngẫu nhiên bằng thuật toán Fisher-Yates shuffle.
+2. Nếu ngân hàng câu hỏi còn đủ ($|A| \ge \text{MainQuestionCount}$):
+   - Chọn đủ số câu hoàn toàn từ tập $A$. Đảm bảo **0% trùng lặp** giữa 2 thí sinh liền nhau.
+3. Nếu ngân hàng thiếu câu hỏi ($|A| < \text{MainQuestionCount}$):
+   - Lấy toàn bộ tập $A$, sau đó bù số lượng còn thiếu từ tập $B$. Đảm bảo độ trùng lặp là **tối thiểu**.
+
+### Kiểm thử tự động
+Chạy bộ kiểm thử tự động tại thư mục gốc:
+```bash
+dotnet run --project tools/test-question-picker
+```
+Kiểm tra 10 ca kiểm thử bao gồm: validation rỗng, mức Bloom 1..4, chống trùng nội dung trong môn, 50 lượt chạy độc lập chứng minh 0% trùng lặp liên tiếp, cơ chế bù trùng tối thiểu khi thiếu câu hỏi, bốc đồng loạt cả phiên và chống xóa câu hỏi đã dùng.
+
+## 10. Kịch bản Demo 7 phút (Toàn luồng)
+
+1. **P1 (Auth & Phân quyền)**: Đăng nhập Admin (Cửa sổ 1) và Student1 (Cửa sổ 2 ẩn danh). Chứng minh student1 không thể truy cập các đường dẫn `/Admin/*`.
+2. **P2 (Môn/Phòng & Dashboard)**: Mở Dashboard ở Cửa sổ 1; Cửa sổ 1 thêm một phòng thi mới -> số liệu thống kê Dashboard và danh sách phòng tự nhảy số realtime.
+3. **P3 (Phiên thi & Lịch chung)**: Admin tạo phiên thi mới cho môn PRN222 (phòng A101, 2 câu hỏi/slot) -> Sinh viên ở Cửa sổ 2 thấy phiên thi hiện lên tức thì trên trang "Lịch thi chung".
+4. **P4 (Gán sinh viên & Chia slot)**: Admin mở "Gán sinh viên", chọn phiên thi, tick gán `student1` và `student2` -> Hệ thống chia Slot #1 và Slot #2, "Lịch của tôi" của `student1` hiện slot kèm giờ thi ngay.
+5. **P5 (Ngân hàng câu hỏi & Bốc đề ngẫu nhiên)**:
+   - `student1` bấm "Xem đề" -> chuyển tới trang `SlotDetail`, thấy 2 câu hỏi đã được tự động bốc ngẫu nhiên kèm mức Bloom.
+   - Admin tại trang Assignments xem danh sách slot: Slot #1 và Slot #2 có các câu hỏi hoàn toàn khác nhau (không trùng thí sinh liền trước).
+   - Admin bấm "Bốc lại đề" cho Slot #1 -> Cửa sổ của `student1` ngay lập tức đổi sang 2 câu hỏi mới tinh với hiệu ứng highlight (SignalR `SlotQuestionsUpdated`).
+   - Admin mở "Ngân hàng câu hỏi", thêm 1 câu hỏi mới -> Cửa sổ Admin khác hiện ngay (SignalR `QuestionCreated`); thử xóa câu hỏi đã gán thì hệ thống từ chối xóa và yêu cầu khóa để bảo vệ dữ liệu.
+6. **Tổng kết**: Chạy `powershell -NoProfile -File tools/check-layers.ps1` kiểm tra đạt chuẩn kiến trúc 3 lớp không chạm DAL.
+

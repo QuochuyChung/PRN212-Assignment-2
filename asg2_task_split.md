@@ -219,11 +219,11 @@ Mỗi người làm theo cùng một thứ tự **A → F** cho lát của mình
 **Xong khi:** gán sinh viên → "Lịch của tôi" của họ hiện slot ngay; gỡ thì biến mất ngay; đổi giờ phiên thì giờ slot đổi theo.
 
 ### P5 — Ngân hàng câu hỏi và bốc câu hỏi
-- [ ] A–B: `Question`, `SlotQuestion` + config + repo.
-- [ ] C: `QuestionService` (CRUD, nội dung không rỗng, chặn trùng nội dung trong cùng môn, khóa thay vì xóa nếu đã dùng); `QuestionPickerService`: bốc **ngẫu nhiên** `MainQuestionCount` câu cho mỗi slot, **tránh trùng** slot liền trước khi còn đủ câu (không đủ thì trùng tối thiểu và ghi chú), lưu `SlotQuestion`; `GetQuestionsOfSlotAsync`.
-- [ ] D: `Admin/Questions` (Index lọc theo môn/mức Bloom, Create, Edit, khóa); nút "Bốc lại câu hỏi" ở trang Assignments (phối hợp P4); `Student/SlotDetail` (câu hỏi của slot mình).
-- [ ] E: bắn `Question*`, `SlotQuestionsUpdated`; JS: trang `SlotDetail` tự cập nhật khi admin bốc lại.
-- [ ] F: seeder ~10 câu/môn (đủ để bốc không hết câu); test thuật toán không trùng; README phần câu hỏi.
+- [x] A–B: `Question`, `SlotQuestion` + config + repo. ✅
+- [x] C: `QuestionService` (CRUD, nội dung không rỗng, chặn trùng nội dung trong cùng môn, khóa thay vì xóa nếu đã dùng); `QuestionPickerService`: bốc **ngẫu nhiên** `MainQuestionCount` câu cho mỗi slot, **tránh trùng** slot liền trước khi còn đủ câu (không đủ thì trùng tối thiểu và ghi chú), lưu `SlotQuestion`; `GetQuestionsOfSlotAsync`. ✅
+- [x] D: `Admin/Questions` (Index lọc theo môn/mức Bloom, Create, Edit, khóa); nút "Bốc lại câu hỏi" ở trang Assignments (phối hợp P4); `Student/SlotDetail` (câu hỏi của slot mình). ✅
+- [x] E: bắn `Question*`, `SlotQuestionsUpdated`; JS: trang `SlotDetail` tự cập nhật khi admin bốc lại. ✅
+- [x] F: seeder ~10 câu/môn (đủ để bốc không hết câu); test thuật toán không trùng; README phần câu hỏi. ✅
 **Xong khi:** mỗi slot có đúng `MainQuestionCount` câu, hai slot liền nhau không trùng câu (khi đủ ngân hàng), bốc lại thì sinh viên thấy ngay.
 
 ## 7. Việc chung chia đều (để ai cũng có phần)
@@ -303,4 +303,4 @@ Nếu **chọn nhóm chức năng khác**, giữ nguyên khung: mỗi người m
 | P2 | Môn, phòng, lõi hub | | | | | | |
 | P3 | Phiên thi | `ExamSession`, `ExamSlot` | `ExamSessionService`, `SlotService` | `Admin/Sessions`, `Student/Schedule`, `Student/MySlots` | `SessionCreated/Updated/Deleted`, `SlotAssigned/Removed` | `session-list.js`, `schedule.js`, `my-slots.js` | |
 | P4 | Slot | `ExamSlot` | `SlotService` | `Admin/Assignments` | `SlotAssigned/Removed` | | |
-| P5 | Câu hỏi | | | | | | |
+| P5 | Câu hỏi | `Question`, `SlotQuestion` | `QuestionService`, `QuestionPickerService` | `Admin/Questions`, `Student/SlotDetail`, `Admin/Assignments` | `QuestionCreated/Updated/Deleted`, `SlotQuestionsUpdated` | `question-list.js`, `slot-detail.js` | |
