@@ -53,8 +53,7 @@ namespace asg2.Web.Pages.Admin.Sessions
         private async Task LoadDropdownsAsync()
         {
             Subjects = await _subjects.GetAllAsync();
-            var allRooms = await _rooms.GetAllAsync();
-            Rooms = allRooms.Where(r => r.IsActive).ToList();
+            Rooms = await _rooms.GetActiveAsync();
         }
     }
 }

@@ -20,18 +20,7 @@ namespace asg2.Web.Pages.Admin.Subjects
         public async Task OnGetAsync(string? q)
         {
             Q = q;
-            var all = await _subjects.GetAllAsync();
-            if (string.IsNullOrWhiteSpace(q))
-            {
-                Subjects = all;
-                return;
-            }
-
-            var term = q.Trim();
-            Subjects = all
-                .Where(s => s.Code.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    || s.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            Subjects = await _subjects.SearchAsync(q);
         }
     }
 }

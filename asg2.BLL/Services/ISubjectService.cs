@@ -8,6 +8,9 @@ namespace asg2.BLL.Services
         /// <summary>Toàn bộ môn học, sắp theo mã môn. P3/P5 dùng cho dropdown.</summary>
         Task<IReadOnlyList<SubjectDto>> GetAllAsync();
 
+        /// <summary>Môn học theo từ khóa (mã hoặc tên, không phân biệt hoa thường). Từ khóa rỗng thì trả toàn bộ.</summary>
+        Task<IReadOnlyList<SubjectDto>> SearchAsync(string? keyword);
+
         Task<SubjectDto?> GetByIdAsync(int id);
 
         Task<ServiceResult<SubjectDto>> CreateAsync(SubjectSaveDto dto);

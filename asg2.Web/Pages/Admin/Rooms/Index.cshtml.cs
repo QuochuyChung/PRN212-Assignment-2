@@ -20,18 +20,7 @@ namespace asg2.Web.Pages.Admin.Rooms
         public async Task OnGetAsync(string? q)
         {
             Q = q;
-            var all = await _rooms.GetAllAsync();
-            if (string.IsNullOrWhiteSpace(q))
-            {
-                Rooms = all;
-                return;
-            }
-
-            var term = q.Trim();
-            Rooms = all
-                .Where(r => r.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
-                    || (r.Building?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
-                .ToList();
+            Rooms = await _rooms.SearchAsync(q);
         }
     }
 }

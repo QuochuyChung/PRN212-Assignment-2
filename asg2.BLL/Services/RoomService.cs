@@ -24,10 +24,32 @@ namespace asg2.BLL.Services
             return list.Select(r => r.ToDto()).ToList();
         }
 
-        public async Task<IReadOnlyList<RoomDto>> GetActiveAsync()
+        public async Task<IReadOnlyList<RoomDto>> SearchAsync(string? keyword)
         {
-            var list = await _rooms.GetActiveAsync();
-            return list.Select(r => r.ToDto()).ToList();
+            var all = await GetAllAsync();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return all;
+
+            var term = keyword.Trim();
+            return all
+                .Where(r => r.Name.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || (r.Building?.Contains(term, StringComparison.OrdinalIgnoreCase) ?? false))
+                .ToList();
+        }
+
+        public async Task<IReadOnlyList<RoomDto>> GetActiveAsync(int? includeRoomId = null)
+        {
+            if (includeRoomId is null)
+            {
+                var active = await _rooms.GetActiveAsync();
+                return active.Select(r => r.ToDto()).ToList();
+            }
+
+            var all = await _rooms.GetAllAsync();
+            return all
+                .Where(r => r.IsActive || r.Id == includeRoomId)
+                .Select(r => r.ToDto())
+                .ToList();
         }
 
         public async Task<RoomDto?> GetByIdAsync(int id)

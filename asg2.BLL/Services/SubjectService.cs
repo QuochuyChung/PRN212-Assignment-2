@@ -27,6 +27,19 @@ namespace asg2.BLL.Services
             return list.Select(s => s.ToDto()).ToList();
         }
 
+        public async Task<IReadOnlyList<SubjectDto>> SearchAsync(string? keyword)
+        {
+            var all = await GetAllAsync();
+            if (string.IsNullOrWhiteSpace(keyword))
+                return all;
+
+            var term = keyword.Trim();
+            return all
+                .Where(s => s.Code.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    || s.Name.Contains(term, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+
         public async Task<SubjectDto?> GetByIdAsync(int id)
         {
             var subject = await _subjects.GetByIdAsync(id);

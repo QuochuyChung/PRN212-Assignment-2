@@ -66,9 +66,8 @@ namespace asg2.Web.Pages.Admin.Sessions
         private async Task LoadDropdownsAsync(int currentRoomId)
         {
             Subjects = await _subjects.GetAllAsync();
-            var allRooms = await _rooms.GetAllAsync();
             // Bao gồm phòng hiện tại của phiên thi kể cả nếu phòng đó đã bị khóa
-            Rooms = allRooms.Where(r => r.IsActive || r.Id == currentRoomId).ToList();
+            Rooms = await _rooms.GetActiveAsync(includeRoomId: currentRoomId);
         }
     }
 }
