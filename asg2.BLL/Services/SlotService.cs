@@ -75,17 +75,22 @@ namespace asg2.BLL.Services
                     $"Khung giờ mới chỉ chứa được {capacity} thí sinh, trong khi phiên đã có {slots.Count} thí sinh.");
             }
 
+            var externalConflicts = await _slots.GetStudentConflictsAsync(
+                slots.Select(slot => slot.StudentId),
+                session.StartTime,
+                session.EndTime,
+                sessionId);
+
             var proposed = new List<(ExamSlot Slot, int OrderNo, DateTime StartTime, DateTime EndTime)>();
             for (var i = 0; i < slots.Count; i++)
             {
                 var orderNo = i + 1;
                 var startTime = session.StartTime.AddMinutes(i * session.SlotMinutes);
                 var endTime = startTime.AddMinutes(session.SlotMinutes);
-                var conflict = await _slots.HasStudentConflictAsync(
-                    slots[i].StudentId,
-                    startTime,
-                    endTime,
-                    slots[i].Id);
+                var conflict = externalConflicts.Any(other =>
+                    other.StudentId == slots[i].StudentId &&
+                    other.StartTime < endTime &&
+                    startTime < other.EndTime);
 
                 if (conflict)
                 {
@@ -206,6 +211,11 @@ namespace asg2.BLL.Services
 
             var errors = new List<string>();
             var candidates = new List<(Account Student, List<int> Orders)>();
+            var externalConflicts = await _slots.GetStudentConflictsAsync(
+                requestedIds,
+                session.StartTime,
+                session.EndTime);
+
             foreach (var studentId in requestedIds)
             {
                 var student = await _accounts.GetByIdAsync(studentId);
@@ -220,7 +230,11 @@ namespace asg2.BLL.Services
                 {
                     var startTime = session.StartTime.AddMinutes((orderNo - 1) * session.SlotMinutes);
                     var endTime = startTime.AddMinutes(session.SlotMinutes);
-                    if (!await _slots.HasStudentConflictAsync(studentId, startTime, endTime))
+                    var hasConflict = externalConflicts.Any(other =>
+                        other.StudentId == studentId &&
+                        other.StartTime < endTime &&
+                        startTime < other.EndTime);
+                    if (!hasConflict)
                     {
                         compatibleOrders.Add(orderNo);
                     }
